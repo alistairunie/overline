@@ -1,0 +1,7 @@
+Overline (web) uses:
+- TeaVM runtime, Apache License 2.0 (https://teavm.org)
+- org.json from the Android Open Source Project, Apache License 2.0
+- Tesseract.js and Tesseract core, Apache License 2.0 (licences in ocr/)
+- Big Shoulders Display and Figtree, SIL Open Font License 1.1 (licences in fonts/)
+Live scores and stats come from ESPN's public feeds.
+Weather forecasts come from Open-Meteo (https://open-meteo.com), CC BY 4.0.
