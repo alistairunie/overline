@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0c1424">
+<meta name="theme-color" content="#090f1c">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Overline</title>
@@ -634,6 +634,191 @@ table.mk td small{display:block;color:var(--muted);font-size:11.5px}
 .showall{display:block;width:100%;padding:9px 0 2px;color:var(--accent2);font-weight:650;font-size:13.5px;text-align:center}
 @media (min-width:700px){.wrap{padding-top:22px}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+/* ---------- Overline 5.0 ----------
+   Cleaner and brighter. The overline, an orange bar set over a heading the way it sits over the O in the logo,
+   marks every section. Cards carry the player, colour carries the result: green over, red under. */
+:root{
+  --bg:#090f1c;--card:#121b2e;--card2:#1b2843;--sunk:#0c1426;
+  --line:rgba(164,186,226,.10);--line2:rgba(164,186,226,.22);
+  --text:#f5f8fd;--muted:#a4b0c6;--faint:#67748d;
+  --accent:#ff7a1a;--accent2:#ffa363;--green:#34eb98;--red:#ff5169;--amber:#ffc84a;--blue:#66b6ff;--gold:#ffd36b;
+  --hi:inset 0 1px 0 rgba(255,255,255,.045);
+  --r:22px;--r2:18px;--r3:12px;
+}
+h2{font:750 18px/1.25 var(--ui);margin:28px 2px 12px}
+h2:before,.sh:before{content:"";display:block;width:20px;height:4px;border-radius:2px;background:var(--accent);margin:0 0 8px}
+.sh{font:750 16px/1.2 var(--ui);margin:24px 2px 10px}
+.card,.list{box-shadow:var(--hi)}
+.card{border-radius:var(--r)}
+.pill{background:var(--card2);color:var(--text);font-weight:600}
+.chip-btn{background:var(--card2);color:var(--text)}
+.chip-btn.on{background:var(--text);color:var(--bg)}
+.btn{border-radius:15px}
+.btn.primary{background:linear-gradient(180deg,#ff8a33,#ff7314);color:#1d0c00;box-shadow:0 8px 20px -10px rgba(255,122,26,.8)}
+.segs{background:var(--sunk);box-shadow:var(--hi)}
+.segs button.on{background:var(--card2);color:var(--text);box-shadow:var(--hi)}
+.search{background:var(--card2)}
+
+/* the dock: the tab you're on gets the overline */
+nav.tabs{background:linear-gradient(to top,var(--bg) 60%,rgba(9,15,28,0))}
+nav.tabs .in{background:rgba(25,37,64,.92);box-shadow:0 12px 32px rgba(2,6,14,.6),inset 0 1px 0 rgba(255,255,255,.06)}
+nav.tabs button.on{background:rgba(245,248,253,.08);color:var(--text)}
+nav.tabs button.on:before{content:"";position:absolute;top:3px;left:50%;width:18px;height:3px;margin-left:-9px;border-radius:2px;background:var(--accent)}
+
+/* games list */
+.game .team{font-size:16px}
+.game .team .score{font-size:26px}
+.game .meta .r{color:var(--accent2)}
+
+/* the line on a pick reads like the logo: a bar running past a white tick */
+.track{height:10px;background:var(--sunk);box-shadow:inset 0 0 0 1px var(--line)}
+.track i{background:linear-gradient(90deg,#ffb347,var(--accent))}
+.track b{width:3px;margin-left:-1.5px;top:-6px;bottom:-6px;border-radius:2px;background:#fff;box-shadow:0 0 0 2px var(--card)}
+.pick.waiting .track i{background:var(--faint)}
+.pick.hit .track i,.pick.won .track i{background:linear-gradient(90deg,#1fd17f,var(--green))}
+.pick.bust .track i,.pick.lost .track i{background:linear-gradient(90deg,#d63b54,var(--red))}
+.pick .val{font-size:52px}
+.pick.hit{box-shadow:var(--hi),inset 0 0 0 1.5px rgba(52,235,152,.35)}
+.badges{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:7px}
+
+/* streaks: a flame and how many in a row */
+.flame{display:inline-flex;align-items:center;gap:3px;padding:3px 8px 3px 6px;border-radius:999px;font:800 13px/1 var(--num);color:#ffb15c;background:rgba(255,122,26,.15);vertical-align:1px;white-space:nowrap;letter-spacing:.01em}
+.flame svg{width:11px;height:14px;flex:none}
+.flame.hot{color:var(--gold);background:linear-gradient(135deg,rgba(255,211,107,.24),rgba(255,81,105,.22));box-shadow:0 0 14px rgba(255,140,40,.3)}
+.flame.lg{margin-left:auto;font-size:17px;padding:5px 11px 5px 8px;background:rgba(9,15,28,.34);color:#fff;box-shadow:none}
+.flame.lg svg{width:14px;height:18px}
+.flame.sum{font-size:22px;background:none;padding:0;gap:4px;color:#ffb15c;box-shadow:none}
+.flame.sum svg{width:14px;height:18px}
+.tip .t1 .flame,.pf .l1 .flame,.leg .flame{margin-left:6px}
+
+/* on the floor or the pitch, while the game's on */
+.oncourt{display:inline-flex;align-items:center;gap:6px;padding:4px 9px;border-radius:999px;font:700 12px/1 var(--ui);background:rgba(52,235,152,.13);color:var(--green);white-space:nowrap}
+.oncourt:before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor;box-shadow:0 0 0 3px rgba(52,235,152,.2);animation:pulse 1.6s ease-in-out infinite}
+.oncourt.off{background:rgba(164,186,226,.1);color:var(--muted)}
+.oncourt.off:before{animation:none;box-shadow:none}
+.ondot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 0 3px rgba(52,235,152,.2);margin-right:7px;vertical-align:1px}
+
+/* the player sheet */
+.sheet{background:#0e1627;max-height:94vh;padding-top:12px}
+.sheet .label{margin-top:16px}
+.pcard{position:relative;overflow:hidden;isolation:isolate;border-radius:26px;padding:16px 18px;min-height:250px;color:var(--pc-ink,#fff);background:var(--pc-bg);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 18px 40px -20px var(--pc-glow,rgba(0,0,0,.7))}
+.pcard.t-great{--pc-bg:linear-gradient(150deg,#ffbe5c 0%,#ff7a1a 46%,#c84a0b 100%);--pc-glow:rgba(255,122,26,.65);--pc-ink:#1c0b00;--pc-glass:rgba(255,255,255,.26);--pc-band:rgba(255,236,214,.34);--pc-rule:rgba(28,11,0,.18)}
+.pcard.t-good{--pc-bg:linear-gradient(150deg,#52e8bd 0%,#16b088 48%,#0b5f55 100%);--pc-glow:rgba(40,210,160,.5);--pc-ink:#03201a;--pc-glass:rgba(255,255,255,.24);--pc-band:rgba(225,255,244,.3);--pc-rule:rgba(3,32,26,.18)}
+.pcard.t-even{--pc-bg:linear-gradient(150deg,#6378a8 0%,#36486f 52%,#1c2845 100%);--pc-glow:rgba(80,110,170,.5)}
+.pcard.t-tough{--pc-bg:linear-gradient(150deg,#ff7a8d 0%,#cc3550 50%,#6a1225 100%);--pc-glow:rgba(255,81,105,.45)}
+.pcard.t-none{--pc-bg:linear-gradient(150deg,#2c3d64 0%,#1c2846 55%,#121b2e 100%)}
+.pc-face{position:absolute;right:-26px;bottom:0;width:72%;max-width:330px;height:auto;z-index:-1;filter:drop-shadow(0 10px 22px rgba(0,0,0,.35))}
+.pc-mono{position:absolute;right:16px;bottom:58px;z-index:-1;font:800 110px/1 var(--num);opacity:.16}
+.pc-mark{position:absolute;right:20px;top:18px;height:74px;width:auto;z-index:-2;opacity:.2;color:var(--pc-ink,#fff)}
+.pc-top{display:flex;align-items:center;gap:8px;font:700 12.5px/1 var(--ui);min-height:28px}
+.pc-pos{padding:5px 8px;border-radius:8px;background:var(--pc-glass,rgba(255,255,255,.16));font-weight:800}
+.pc-team{opacity:.85}
+.pc-name{margin-top:10px;max-width:64%}
+.pc-name small{display:block;font:650 15px/1.15 var(--ui);opacity:.88}
+.pc-name b{display:block;font:800 44px/.92 var(--num);text-transform:uppercase;letter-spacing:.005em;overflow-wrap:anywhere}
+.pc-hero{margin-top:16px;max-width:64%}
+.pc-ol{display:block;width:30px;height:5px;border-radius:3px;background:currentColor;margin-bottom:7px;opacity:.95}
+.pc-hero b{display:block;font:800 66px/.84 var(--num);letter-spacing:-.01em;font-variant-numeric:tabular-nums}
+.pc-lab{display:block;font:750 13.5px/1.25 var(--ui);margin-top:7px}
+.pc-lab em{font-style:normal;opacity:.72}
+.pc-sub{display:block;font:550 12.5px/1.3 var(--ui);opacity:.82;margin-top:2px}
+.pc-foot{display:flex;margin:16px -18px -16px;padding:11px 8px 13px;background:var(--pc-band,rgba(9,15,28,.34))}
+.pc-g{flex:1 1 0;min-width:0;padding:2px 10px}
+.pc-g + .pc-g{border-left:1px solid var(--pc-rule,rgba(255,255,255,.2))}
+.pc-g b{display:block;font:800 25px/1 var(--num);font-variant-numeric:tabular-nums}
+.pc-g b small{font-size:15px;opacity:.7}
+.pc-g span{display:block;font:650 11px/1.25 var(--ui);opacity:.85;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pc-inj{display:inline-block;margin-top:10px;padding:6px 10px;border-radius:10px;background:rgba(9,15,28,.4);color:#ffd0d7;font:700 12.5px/1.3 var(--ui)}
+.stabs{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:14px -18px 0;padding:2px 18px 4px}
+.stabs::-webkit-scrollbar{display:none}
+.stabs button{flex:none;min-width:64px;padding:9px 12px 8px;border-radius:14px;background:var(--card2);font:750 14px/1.1 var(--ui);text-align:center;color:var(--text)}
+.stabs button small{display:block;font:600 11px var(--ui);color:var(--muted);margin-top:3px;white-space:nowrap}
+.stabs button.on{background:var(--text);color:var(--bg)}
+.stabs button.on small{color:#4a5670}
+.cpanel{background:var(--card);border-radius:22px;padding:14px 14px 14px;margin-top:12px;box-shadow:var(--hi)}
+.rtiles{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.rtiles.n4{grid-template-columns:repeat(4,minmax(0,1fr))}.rtiles.n3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.rt{padding:8px 2px 7px;border-radius:13px;background:var(--sunk);text-align:center;min-width:0;box-shadow:inset 0 0 0 1.5px transparent;transition:box-shadow .15s,background .15s}
+.rt span{display:block;font:700 11px/1.2 var(--ui);color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rt b{display:block;font:800 19px/1.05 var(--num);margin-top:3px;font-variant-numeric:tabular-nums}
+.rt small{display:block;font:750 11px/1.2 var(--ui);color:var(--faint);margin-top:1px}
+.rt.hot small{color:var(--green)}.rt.warm small{color:#9be8c4}.rt.cold small{color:var(--red)}
+.rt.on{background:rgba(52,235,152,.08);box-shadow:inset 0 0 0 1.5px var(--green)}
+.rt.none{opacity:.4}
+.csum{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin:14px 0 2px;text-align:center}
+.csum > div{min-width:0}
+.csum b{display:block;font:800 23px/1 var(--num);font-variant-numeric:tabular-nums}
+.csum span{display:block;font:650 11px/1.2 var(--ui);color:var(--muted);margin-top:4px}
+.csum .flame{justify-content:center}
+.cwrap{margin:6px -2px 0}
+.cwrap.scroll{overflow-x:auto;scrollbar-width:thin;padding-bottom:4px}
+.chart{display:block;width:100%;height:auto}
+.cwrap.scroll .chart{width:auto}
+.chart .grid{stroke:var(--line);stroke-width:1}
+.chart .b.h{fill:var(--green)}.chart .b.m{fill:var(--red)}.chart .b.n{fill:var(--blue)}.chart .b.prev{opacity:.5}
+.chart .bv{font:800 12.5px var(--num);text-anchor:middle;fill:var(--muted)}
+.chart .bv.h{fill:var(--green)}.chart .bv.m{fill:var(--red)}
+.chart .bv.in{fill:#052414}.chart .bv.in.m{fill:#fff}.chart .bv.in.n{fill:#06182c}
+.chart .ln{stroke:var(--accent);stroke-width:1.7;stroke-dasharray:6 4}
+.chart .lnc{fill:var(--accent)}
+.chart .lnt{font:800 11.5px var(--num);fill:#1c0b00;text-anchor:middle}
+.chart .mins{fill:none;stroke:var(--blue);stroke-width:1.8;stroke-linejoin:round;stroke-linecap:round;opacity:.95}
+.chart .mind{fill:var(--blue)}
+.chart .xo{font:700 10px var(--ui);fill:var(--muted);text-anchor:middle}
+.chart.dense .xo{font-size:9px}
+.chart .xd{font:600 9.5px var(--ui);fill:var(--faint);text-anchor:middle}
+.ckey{display:flex;justify-content:center;gap:16px;font:650 11.5px var(--ui);color:var(--muted);margin-top:6px}
+.ckey span:before{content:"";display:inline-block;width:14px;height:3px;border-radius:2px;margin-right:6px;vertical-align:3px;background:var(--accent)}
+.ckey .k-min:before{background:var(--blue)}
+.cwhat{font-size:11.5px;color:var(--faint);text-align:center;margin-top:3px}
+.cctl{display:grid;gap:8px;margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
+.cnote{text-align:center;margin-top:8px}
+.cload{display:flex;flex-direction:column;align-items:center;gap:0;color:var(--muted);font-size:13px;padding:4px 0 10px}
+.cload .spin{margin:14px auto 10px}
+.cpanel .fchips{margin:12px 0 0}
+.linebox input{background:var(--sunk);font-size:32px}
+.l5{background:var(--card);border-radius:20px;padding:4px 12px;box-shadow:var(--hi)}
+.l5r{display:grid;grid-template-columns:62px repeat(5,minmax(0,1fr)) 38px;gap:5px;align-items:center;width:100%;padding:8px 0;text-align:center;color:var(--text)}
+.l5r + .l5r{border-top:1px solid var(--line)}
+.l5h{font:700 10.5px/1.2 var(--ui);color:var(--muted);padding:9px 0 5px}
+.l5h span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.l5k{text-align:left;min-width:0}
+.l5k b{display:block;font:800 14px/1 var(--ui)}
+.l5k small{display:block;font:650 10.5px/1.2 var(--ui);color:var(--muted);margin-top:3px;white-space:nowrap}
+.l5r.on .l5k b{color:var(--accent2)}
+.bx{display:block;padding:8px 0;border-radius:10px;font:800 15.5px/1 var(--num);background:var(--sunk);color:var(--muted);font-variant-numeric:tabular-nums}
+.bx.up{background:rgba(52,235,152,.13);color:var(--green);box-shadow:inset 0 0 0 1px rgba(52,235,152,.38)}
+.bx.dn{background:rgba(255,81,105,.11);color:#ff7d90;box-shadow:inset 0 0 0 1px rgba(255,81,105,.32)}
+.bx.none{opacity:.5}
+.l5t{text-align:right}
+.l5t b{font:800 17px var(--num)}
+.l5t small{font-size:11px;color:var(--muted)}
+.mcard{padding:14px 16px}
+.mgrade{display:flex;gap:12px;align-items:flex-start}
+.mgrade > b{flex:none;width:46px;height:46px;border-radius:15px;display:flex;align-items:center;justify-content:center;font:800 30px/1 var(--num);background:var(--card2)}
+.mgrade.t-great > b{background:linear-gradient(150deg,#ffbe5c,#ff7a1a);color:#1c0b00}
+.mgrade.t-good > b{background:linear-gradient(150deg,#52e8bd,#16b088);color:#03201a}
+.mgrade.t-tough > b{background:linear-gradient(150deg,#ff7a8d,#cc3550)}
+.mgrade .t{font-weight:750}
+.mrow{display:grid;grid-template-columns:minmax(0,1fr) 78px;gap:6px 12px;align-items:center;padding:12px 0 0;margin-top:10px;border-top:1px solid var(--line)}
+.mrow .ml{font-size:13.5px;min-width:0}
+.mrow .mbar{height:8px;border-radius:99px;background:var(--sunk);overflow:hidden}
+.mrow .mbar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--accent),var(--gold))}
+.mrow .mbar.me i{background:linear-gradient(90deg,#3f8fe0,var(--blue))}
+.mrow .mr{grid-column:2;grid-row:1 / span 2;text-align:right;font:800 19px/1 var(--num)}
+.mrow .mr small{display:block;font:650 11px/1.2 var(--ui);color:var(--muted);margin-top:3px}
+.sheetbar{position:sticky;bottom:calc(-18px - env(safe-area-inset-bottom));z-index:2;display:flex;gap:8px;margin:16px -18px calc(-18px - env(safe-area-inset-bottom));padding:14px 18px calc(18px + env(safe-area-inset-bottom));background:linear-gradient(to top,#0e1627 72%,rgba(14,22,39,0))}
+.sheetbar .btn{padding:14px 16px}
+@media (max-width:360px){.pc-name b{font-size:38px}.pc-hero b{font-size:56px}.l5r{grid-template-columns:54px repeat(5,minmax(0,1fr)) 34px;gap:4px}}
+
+/* loading: the overline itself, a bar running past the tick */
+.spin{width:52px;height:6px;border-radius:3px;border:0;background:var(--card2);position:relative;animation:none;margin:34px auto}
+.spin:before{content:"";position:absolute;left:0;top:0;bottom:0;width:0;border-radius:3px;background:var(--accent);animation:olrun 1.25s cubic-bezier(.45,0,.25,1) infinite}
+.spin:after{content:"";position:absolute;left:72%;top:-5px;bottom:-5px;width:3px;margin-left:-1.5px;border-radius:2px;background:#fff;box-shadow:0 0 0 2px var(--bg)}
+@keyframes olrun{0%{width:0;opacity:1}72%{width:100%;opacity:1}100%{width:100%;opacity:0}}
+/* empty screens carry the mark */
+.empty b:before{content:"";display:block;width:24px;height:38px;margin:0 auto 14px;background:var(--faint);opacity:.7;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 40 63%22%3E%3Cpath fill-rule=%22evenodd%22 d=%22M17,19H23A13,13 0 0 1 36,32V50A13,13 0 0 1 23,63H17A13,13 0 0 1 4,50V32A13,13 0 0 1 17,19ZM20,28A6,6 0 0 0 14,34V48A6,6 0 0 0 20,54H20A6,6 0 0 0 26,48V34A6,6 0 0 0 20,28Z%22/%3E%3Cpath d=%22M5,4H28.1V14H5A5,5 0 0 1 5,4ZM35.9,4H35A5,5 0 0 1 35,14H35.9Z%22/%3E%3Cpath d=%22M32,0H32A1.7,1.7 0 0 1 33.7,1.7V16.3A1.7,1.7 0 0 1 32,18H32A1.7,1.7 0 0 1 30.3,16.3V1.7A1.7,1.7 0 0 1 32,0Z%22/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 40 63%22%3E%3Cpath fill-rule=%22evenodd%22 d=%22M17,19H23A13,13 0 0 1 36,32V50A13,13 0 0 1 23,63H17A13,13 0 0 1 4,50V32A13,13 0 0 1 17,19ZM20,28A6,6 0 0 0 14,34V48A6,6 0 0 0 20,54H20A6,6 0 0 0 26,48V34A6,6 0 0 0 20,28Z%22/%3E%3Cpath d=%22M5,4H28.1V14H5A5,5 0 0 1 5,4ZM35.9,4H35A5,5 0 0 1 35,14H35.9Z%22/%3E%3Cpath d=%22M32,0H32A1.7,1.7 0 0 1 33.7,1.7V16.3A1.7,1.7 0 0 1 32,18H32A1.7,1.7 0 0 1 30.3,16.3V1.7A1.7,1.7 0 0 1 32,0Z%22/%3E%3C/svg%3E") center/contain no-repeat}
 </style>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -655,6 +840,7 @@ table.mk td small{display:block;color:var(--muted);font-size:11.5px}
 <meta name="twitter:card" content="summary_large_image">
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs><linearGradient id="g-flame" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd36b"/><stop offset=".55" stop-color="#ff7a1a"/><stop offset="1" stop-color="#ff4f3a"/></linearGradient><linearGradient id="g-flame-in" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff6d6"/><stop offset="1" stop-color="#ffd36b"/></linearGradient></defs><symbol id="i-flame" viewBox="0 0 16 20"><path fill="url(#g-flame)" d="M8.2.6c.5 3.3 3.1 4.9 4.6 7.3 1.3 2 1.9 4 1.5 6.2-.6 3.3-3.3 5.5-6.4 5.5S2 17.3 1.7 13.9c-.2-2.2.7-4.3 2.2-5.9.1 1.4.7 2.5 1.7 3.1-.4-3.9.6-7.5 2.6-10.5z"/><path fill="url(#g-flame-in)" d="M8.1 9.8c.4 1.6 2.6 2.6 2.6 4.8 0 1.5-1.2 2.6-2.7 2.6s-2.6-1.1-2.6-2.5c0-1.2.6-2 1.4-2.6.1.7.4 1.1.8 1.3-.2-1.3.1-2.6.5-3.6z"/></symbol><symbol id="i-mark" viewBox="0 0 40 63"><path fill="currentColor" fill-rule="evenodd" d="M17,19H23A13,13 0 0 1 36,32V50A13,13 0 0 1 23,63H17A13,13 0 0 1 4,50V32A13,13 0 0 1 17,19ZM20,28A6,6 0 0 0 14,34V48A6,6 0 0 0 20,54H20A6,6 0 0 0 26,48V34A6,6 0 0 0 20,28Z"/><path fill="currentColor" d="M5,4H28.1V14H5A5,5 0 0 1 5,4ZM35.9,4H35A5,5 0 0 1 35,14H35.9Z"/><path fill="currentColor" d="M32,0H32A1.7,1.7 0 0 1 33.7,1.7V16.3A1.7,1.7 0 0 1 32,18H32A1.7,1.7 0 0 1 30.3,16.3V1.7A1.7,1.7 0 0 1 32,0Z"/></symbol></svg>
 <div class="wrap" id="main">
   <header class="top">
     <div class="brand"><svg class="brandmark" viewBox="0 0 40 63" aria-hidden="true"><path fill-rule="evenodd" fill="#ff7a1a" d="M17,19H23A13,13 0 0 1 36,32V50A13,13 0 0 1 23,63H17A13,13 0 0 1 4,50V32A13,13 0 0 1 17,19ZM20,28A6,6 0 0 0 14,34V48A6,6 0 0 0 20,54H20A6,6 0 0 0 26,48V34A6,6 0 0 0 20,28Z"/><path fill="#ff7a1a" d="M5,4H35A5,5 0 0 1 40,9V9A5,5 0 0 1 35,14H5A5,5 0 0 1 0,9V9A5,5 0 0 1 5,4Z"/><path fill="#eef3fa" d="M32,0H32A1.7,1.7 0 0 1 33.7,1.7V16.3A1.7,1.7 0 0 1 32,18H32A1.7,1.7 0 0 1 30.3,16.3V1.7A1.7,1.7 0 0 1 32,0Z"/></svg><h1 id="ptitle">Games</h1></div>
@@ -1125,10 +1311,17 @@ function pickCard(p){
     (sel ? '<span class="sel' + (S.sel[p.id] ? " on" : "") + '">' + (S.sel[p.id] ? "&#10003;" : "") + '</span>'
       : S.selecting ? '' : (S.armed === p.id ? '<button class="x armed" data-del="' + esc(p.id) + '">Remove</button>' : '<button class="x" data-del="' + esc(p.id) + '" aria-label="Remove">&#x2715;</button>')) +
     '<div class="head" data-gopen="' + esc(p.game_id) + '" data-aid="' + esc(p.athlete_id) + '">' + avatarHtml(p) + '<div class="grow"><div class="who">' + esc(who) + (p.athlete_id !== "match" && p.team ? ' <span class="muted small">' + esc(p.team) + '</span>' : '') + (p.source === "ladder" ? ' <span class="badge ladder">Ladder</span>' : '') + '</div>' +
-    '<div class="what">' + pickWhat(p) + '</div>' + (p.sub ? '<div class="subl">Off ' + esc(p.sub.min || "") + ', ' + esc(p.sub.short || p.sub.name) + ' took over the bet</div>' : '') + '</div></div>' +
+    '<div class="what">' + pickWhat(p) + '</div>' + pickBadges(p) + (p.sub ? '<div class="subl">Off ' + esc(p.sub.min || "") + ', ' + esc(p.sub.short || p.sub.name) + ' took over the bet</div>' : '') + '</div></div>' +
     '<div class="numrow"><span class="val' + bump + '">' + ((isWin(p) || isCap(p)) && +p.value > 0 ? "+" : "") + fmt(p.value) + '</span>' + of + pickChip(p) + '</div>' +
     (trackHtml(p) || '<div style="height:10px"></div>') + paceHtml(p) +
     '<div class="foot">' + foot.join("") + '</div></div>';
+}
+// Live: on the floor or not. Before and during: the streak it was added on.
+function pickBadges(p){
+  const g = p.game || {}, b = [];
+  if (g.state === "in" && p.athlete_id !== "match"){ const o = onHtml(p.on, p.sport || g.sport); if (o) b.push(o); }
+  if (!p.final){ const f = flameHtml(p.streak); if (f) b.push(f); }
+  return b.length ? '<div class="badges">' + b.join("") + '</div>' : "";
 }
 function renderPicks(){
   const el = $("tab-picks");
@@ -2311,7 +2504,7 @@ function feedRow(t){
   const tag = t.kind_tip === "call" ? t.title : t.kind_tip === "value" ? "Value at the price" : "";
   const why = t.why || t.note || "";
   return '<div class="tip' + muClass(t) + '" data-ftip="' + k + '">' + avatarHtml(feedPick(t)) + '<div class="grow">' + (tag ? '<div class="tk">' + esc(tag) + '</div>' : '') +
-    '<div class="t1">' + (own ? esc(lab) : esc(t.name) + injBadge(t.injury)) + '</div>' + (own ? '' : '<div class="t2">' + esc(lab) + '</div>') +
+    '<div class="t1">' + (own ? esc(lab) : esc(t.name) + injBadge(t.injury)) + flameHtml(t.form && t.form.streak) + '</div>' + (own ? '' : '<div class="t2">' + esc(lab) + '</div>') +
     '<div class="t3">' + esc(feedGame(t)) + '</div>' + (why ? '<div class="t3">' + esc(why) + '</div>' : '') + muLine(t) + '</div>' +
     '<div class="r"><div class="pc' + (hi ? " hi" : "") + '">' + pct(t.p) + '</div><div class="pr">' + tipPrice(t) + '</div></div>' +
     '<button class="iconbtn add' + (done ? " on" : "") + '" data-fadd="' + k + '" aria-label="' + (done ? "Tracking" : "Track this") + '">' + (done ? "&#10003;" : "+") + '</button></div>';
@@ -3646,7 +3839,7 @@ function renderGame(keepSearch){
       const face = g.demo ? "" : faceUrl(g.league, p.id, 96);
       const flag = tennis ? [g.home, g.away].find(x => String(x.id) === String(p.id)) : null;
       const mb = muBest[p.id], chip = mb && (mb.tier === "elite" || mb.tier === "great") ? '<span class="muchip ' + mb.tier + '" data-mustat="' + esc(mb.stat) + '" title="' + esc(TIER_NAME[mb.tier] + " matchup") + '">' + esc(mb.short) + '</span>' : '';
-      h += '<div class="player' + (p.dnp ? " dnp" : "") + '" data-p="' + esc(p.id) + '"><div class="num' + (face ? " img" : "") + '">' + esc(tennis ? initials(p.name) : p.jersey || "-") + (face ? '<img src="' + esc(face) + '" alt="" ' + NOIMG + '>' : '') + '</div><div class="grow"><div class="nm">' + esc(p.name) +
+      h += '<div class="player' + (p.dnp ? " dnp" : "") + '" data-p="' + esc(p.id) + '"><div class="num' + (face ? " img" : "") + '">' + esc(tennis ? initials(p.name) : p.jersey || "-") + (face ? '<img src="' + esc(face) + '" alt="" ' + NOIMG + '>' : '') + '</div><div class="grow"><div class="nm">' + (p.on ? '<span class="ondot" title="' + (g.sport === "basketball" ? "On court" : "On the pitch") + '"></span>' : '') + esc(p.name) +
         (flag ? ' ' + teamLogo(flag, "tennis") : '') + (p.pos ? ' <span class="muted small">' + esc(p.pos) + '</span>' : '') + (face && p.jersey ? '<span class="jn">#' + esc(p.jersey) + '</span>' : '') + (FEAT().screener ? injBadge(p.inj) : '') + chip + (n ? ' <span class="tracked">' + n + ' tracked</span>' : '') + '</div>' +
         (p.line ? '<div class="ln">' + esc(p.line) + '</div>' : '') + (p.last ? '<div class="ln">' + esc(p.last) + '</div>' : '') + (ls ? '<div class="ln" style="color:var(--accent2)">' + esc(ls) + '</div>' : '') + '</div><span class="iconbtn" aria-hidden="true">+</span></div>';
     });
@@ -3736,7 +3929,7 @@ function tipRow(t, title, extra){
   const done = legTracked(t), match = t.athlete_id === "match", hi = t.p >= 0.6;
   const sub = (extra || []).filter(Boolean);
   const lab = title && t.label.indexOf(title + ": ") === 0 ? t.label.slice(title.length + 2) : t.label;
-  const l1 = match || t.label.indexOf(t.name) === 0 ? esc(lab) : esc(t.name) + injBadge(t.injury);
+  const l1 = (match || t.label.indexOf(t.name) === 0 ? esc(lab) : esc(t.name) + injBadge(t.injury)) + flameHtml(t.form && t.form.streak);
   const l2 = match || t.label.indexOf(t.name) === 0 ? '' : '<div class="t2">' + esc(t.label) + '</div>';
   return '<div class="tip' + muClass(t) + '" data-tip="' + k + '">' + avatarHtml(tipPick(t)) + '<div class="grow">' + (title ? '<div class="tk">' + esc(title) + '</div>' : '') +
     '<div class="t1">' + l1 + '</div>' + l2 + sub.map(x => '<div class="t3">' + esc(x) + '</div>').join("") + muLine(t) +
@@ -4039,54 +4232,262 @@ async function loadForm(p, g, wo){
   catch(e){ S.forms[key] = {error:e.message}; }
   updateFormBox();
 }
-function updateFormBox(){
-  const x = S.sheet, fb = $("formbox");
-  if (!x || !fb) return;
-  const pr = x.list.find(q => q.key === x.stat) || {};
-  fb.innerHTML = formInner(x, pr);
+/* ---------- 5.0: the player card ---------- */
+// The card up top, then the graph with the line to play with, then the last five, the matchup and the bet.
+const GRADE = {great:"A", good:"B", even:"C", tough:"D"};
+const STREAK_MIN = 4;
+const ordn = n => { n = +n || 0; const s = ["th", "st", "nd", "rd"], v = n % 100; return n + (s[(v - 20) % 10] || s[v] || s[0]); };
+// Games in a row it's landed, most recent back. Games come newest first.
+function streakOf(games, key, line, more){
+  if (isNaN(line)) return 0;
+  let n = 0;
+  for (const gm of games || []){
+    const v = gm.v ? gm.v[key] : null;
+    if (v == null) continue;
+    if (more ? v > line : v < line) n++; else break;
+  }
+  return n;
 }
+function flameHtml(n, cls){
+  if (!(n >= STREAK_MIN)) return "";
+  const t = "Landed " + n + " in a row";
+  return '<span class="flame' + (n >= 8 ? " hot" : "") + (cls ? " " + cls : "") + '" title="' + t + '" aria-label="' + t + '"><svg viewBox="0 0 16 20" aria-hidden="true"><use href="#i-flame"/></svg>' + n + '</span>';
+}
+// On the floor or the pitch, for live games where the feed says.
+function onHtml(on, sport){
+  if (on == null) return "";
+  const bb = sport === "basketball";
+  return '<span class="oncourt' + (on ? "" : " off") + '">' + (on ? (bb ? "On court" : "On the pitch") : (bb ? "On the bench" : "Off the pitch")) + '</span>';
+}
+function lineFor(x, key){
+  if (key === x.stat) return parseFloat(x.line);
+  const m = marketFor(x.p.id, key), pr = x.list.find(q => q.key === key) || {};
+  if (m && m.line != null) return m.line;
+  if (m && (m.alts || []).length){
+    let best = m.alts[0];
+    m.alts.forEach(a => { if (Math.abs(Math.log(a[1] / 1.9)) < Math.abs(Math.log(best[1] / 1.9))) best = a; });
+    return best[0];
+  }
+  return pr.line != null ? +pr.line : NaN;
+}
+function sheetForm(x){ return S.forms[x.g.id + "|" + x.p.id]; }
+
+function cardInner(x, pr){
+  const p = x.p, g = x.g, key = pr.key, base = sheetForm(x);
+  const loading = !base || base.loading;
+  const D = base && base.dvp && base.dvp.ready ? base.dvp : null;
+  const m = D && D.props ? D.props[key] : null;
+  const more = x.side !== "less", line = parseFloat(x.line), hasLine = !isNaN(line);
+  const tier = m ? (more ? m.tier : m.tier_less) || "even" : "";
+  const games = ((base && base.games) || []).filter(gm => gm.v[key] != null);
+  const avg = a => a.reduce((t, v) => t + v, 0) / (a.length || 1);
+  const last10 = games.slice(0, 10).map(gm => +gm.v[key]);
+  let big = "", lab = "", sub = "", good = null;
+  if (m && m.chance != null){
+    big = pct(m.chance); lab = "Chance of one or more"; sub = "Projects " + pjf(m.proj) + (hasLine ? " · line " + fmt(line) : "");
+    good = more ? m.chance >= 0.5 : m.chance < 0.5;
+  } else if (m && m.proj != null && hasLine){
+    const gap = +(m.proj - line).toFixed(1);
+    big = (gap > 0 ? "+" : gap < 0 ? "−" : "") + fmt(Math.abs(gap)); lab = gap > 0 ? "Projected over the line" : gap < 0 ? "Projected under the line" : "Right on the line";
+    sub = "Projects " + pjf(m.proj) + " · line " + fmt(line); good = more ? gap > 0 : gap < 0;
+  } else if (last10.length && hasLine){
+    const a = avg(last10), gap = +(a - line).toFixed(1);
+    big = (gap > 0 ? "+" : gap < 0 ? "−" : "") + fmt(Math.abs(gap)); lab = gap >= 0 ? "Averaging over the line" : "Averaging under the line";
+    sub = "Last " + last10.length + " average " + fmt(+a.toFixed(1)) + " · line " + fmt(line); good = more ? gap > 0 : gap < 0;
+  } else if (last10.length){
+    big = fmt(+avg(last10).toFixed(1)); lab = "Average, last " + last10.length;
+  } else if (m && m.proj != null){
+    big = pjf(m.proj); lab = "Projected " + (pr.short || pr.name || "");
+  } else {
+    big = "–"; lab = loading ? "Reading his recent games" : "No recent games to go on";
+  }
+  const hits = hasLine ? last10.filter(v => more ? v > line : v < line).length : null;
+  const streak = streakOf(games, key, line, more);
+  const face = faceUrl(g.league, p.id, 320);
+  // first name small, surname big, with Jr. and the like kept on the surname
+  const parts = String(p.name || "").trim().split(/\s+/);
+  let cut = parts.length > 1 ? parts.length - 1 : parts.length;
+  if (cut > 1 && /^(jr\.?|sr\.?|ii|iii|iv|v)$/i.test(parts[cut])) cut--;
+  const first = parts.slice(0, cut).join(" "), last = parts.slice(cut).join(" ") || first;
+  const opp = base && base.opp ? base.opp : "";
+  const pos = D && D.pos_name ? D.pos_name : "";
+  const posTag = p.pos || (pos ? pos.split(" ")[0] : "");
+  const foot = [];
+  if (m) foot.push('<div class="pc-g"><b>' + esc(GRADE[tier] || "C") + '</b><span>' + esc((opp ? "vs " + opp : "Matchup") + " · " + (TIER_NAME[tier] || "Even")) + '</span></div>');
+  if (m && m.m && m.m.rank) foot.push('<div class="pc-g"><b>#' + esc(m.m.rank) + '</b><span>of ' + esc(m.m.of) + ' ' + esc(String(pos || "players").toLowerCase()) + '</span></div>');
+  if (hits != null && last10.length) foot.push('<div class="pc-g"><b>' + hits + '<small>/' + last10.length + '</small></b><span>last ' + last10.length + '</span></div>');
+  else if (last10.length) foot.push('<div class="pc-g"><b>' + fmt(+avg(last10).toFixed(1)) + '</b><span>avg last ' + last10.length + '</span></div>');
+  return '<div class="pcard t-' + esc(tier || "none") + '">' +
+    (face ? '<img class="pc-face" src="' + esc(face) + '" alt="" onerror="this.remove()">' : '<span class="pc-mono">' + esc(initials(p.name)) + '</span>') +
+    '<svg class="pc-mark" viewBox="0 0 40 63" aria-hidden="true"><use href="#i-mark"/></svg>' +
+    '<div class="pc-top">' + (posTag ? '<span class="pc-pos">' + esc(posTag) + '</span>' : '') + '<span class="pc-team">' + esc([p.team, p.jersey ? "#" + p.jersey : ""].filter(Boolean).join(" · ")) + '</span>' + flameHtml(streak, "lg") + '</div>' +
+    '<div class="pc-name">' + (first ? '<small>' + esc(first) + '</small>' : '') + '<b>' + esc(last) + '</b></div>' +
+    '<div class="pc-hero' + (good === true ? " up" : good === false ? " down" : "") + '"><span class="pc-ol"></span><b>' + esc(big) + '</b><span class="pc-lab">' + esc(lab) + (pr.short ? ' <em>' + esc(pr.short) + '</em>' : '') + '</span>' + (sub ? '<span class="pc-sub">' + esc(sub) + '</span>' : '') + '</div>' +
+    (foot.length ? '<div class="pc-foot">' + foot.join("") + '</div>' : '') +
+    (base && base.injury ? '<div class="pc-inj">' + esc(base.injury + (base.injury_note ? ": " + base.injury_note : "")) + '</div>' : '') +
+    '</div>';
+}
+
+// The graph: each game a bar against the line, newest on the right, minutes as a line across the top.
+function chartSvg(games, key, line, more, sport){
+  const n = games.length;
+  if (!n) return "";
+  const scroll = n > 20, W = scroll ? 14 + n * 20 : 340, H = 200, top = 16, bot = n > 10 ? 26 : 38, ch = H - top - bot;
+  const vals = games.map(gm => +gm.v[key] || 0), hasLine = !isNaN(line);
+  const max = Math.max(1, ...vals, hasLine ? line * 1.2 : 0) * 1.08;
+  const gap = n > 14 ? 3 : n > 8 ? 5 : 8, x0 = 6, bw = (W - x0 * 2 - gap * (n - 1)) / n;
+  const y = v => top + ch - Math.min(v, max) / max * ch;
+  const mins = games.map(gm => gm.min == null ? null : +gm.min);
+  const showMin = (sport === "basketball" || sport === "soccer") && mins.filter(v => v != null).length >= Math.max(2, n * 0.6);
+  const mMax = sport === "soccer" ? 95 : Math.max(40, ...mins.filter(v => v != null)) * 1.05;
+  let s = '<svg class="chart' + (n > 8 ? " dense" : "") + '" viewBox="0 0 ' + W + ' ' + H + '"' + (scroll ? ' width="' + W + '" height="' + H + '"' : '') + ' role="img" aria-label="Last ' + n + ' games against the line">';
+  [0.5, 1].forEach(f => { s += '<line class="grid" x1="0" x2="' + W + '" y1="' + (top + ch * (1 - f)).toFixed(1) + '" y2="' + (top + ch * (1 - f)).toFixed(1) + '"/>'; });
+  games.forEach((gm, i) => {
+    const v = vals[i], cx = x0 + i * (bw + gap);
+    const hit = hasLine ? (more ? v > line : v < line) : null;
+    const cls = hit == null ? "n" : hit ? "h" : "m";
+    const hgt = Math.max(v > 0 ? 6 : 4, ch * Math.min(v, max) / max), yy = top + ch - hgt;
+    s += '<rect class="b ' + cls + (gm.prev ? " prev" : "") + '" x="' + cx.toFixed(1) + '" y="' + yy.toFixed(1) + '" width="' + bw.toFixed(1) + '" height="' + hgt.toFixed(1) + '" rx="' + Math.min(6, bw / 3).toFixed(1) + '"/>';
+    const inside = hgt >= 22 && bw >= 14;
+    s += '<text class="bv ' + cls + (inside ? " in" : "") + '" x="' + (cx + bw / 2).toFixed(1) + '" y="' + (inside ? top + ch - 7 : yy - 5).toFixed(1) + '">' + esc(fmt(v)) + '</text>';
+    const d = new Date(gm.date), opp = (gm.at === "@" ? "@" : "") + (gm.opp || "");
+    s += '<text class="xo" x="' + (cx + bw / 2).toFixed(1) + '" y="' + (top + ch + 14) + '">' + esc(n > 14 ? (gm.opp || "") : opp) + '</text>';
+    if (n <= 10 && !isNaN(d)) s += '<text class="xd" x="' + (cx + bw / 2).toFixed(1) + '" y="' + (top + ch + 28) + '">' + d.getDate() + "/" + (d.getMonth() + 1) + '</text>';
+  });
+  if (showMin){
+    const pts = [];
+    games.forEach((gm, i) => { if (mins[i] == null) return; pts.push([x0 + i * (bw + gap) + bw / 2, top + 4 + (ch - 4) * (1 - Math.min(mins[i], mMax) / mMax)]); });
+    s += '<polyline class="mins" points="' + pts.map(q => q[0].toFixed(1) + "," + q[1].toFixed(1)).join(" ") + '"/>';
+    pts.forEach(q => { s += '<circle class="mind" cx="' + q[0].toFixed(1) + '" cy="' + q[1].toFixed(1) + '" r="2.4"/>'; });
+  }
+  if (hasLine){
+    const ly = y(line).toFixed(1), lab = fmt(line), lw = 12 + lab.length * 7;
+    s += '<line class="ln" x1="0" x2="' + W + '" y1="' + ly + '" y2="' + ly + '"/>';
+    s += '<rect class="lnc" x="2" y="' + (ly - 10) + '" width="' + lw + '" height="20" rx="10"/><text class="lnt" x="' + (2 + lw / 2) + '" y="' + (+ly + 4.5) + '">' + esc(lab) + '</text>';
+  }
+  return s + '</svg>' + (showMin || hasLine ? '<div class="ckey">' + (hasLine ? '<span class="k-ln">Line</span>' : '') + (showMin ? '<span class="k-min">Minutes</span>' : '') + '</div>' : '');
+}
+
+// Hit rate over the last 5, 10, 20, the season and against tonight's side. Tap one to graph it.
+function rangeTiles(x, base, pr, line, more, hasLine){
+  const key = pr.key, all = (base.games || []).filter(gm => gm.v[key] != null);
+  const vs = all.filter(gm => gm.opp === base.opp).concat((base.vs_prev || []).filter(gm => gm.v[key] != null));
+  const cur = x.ff === "opp" ? "opp" : String(x.n == null ? 10 : x.n);
+  const tile = (gs, label, id) => {
+    let b = "–", sm = "", cls = "";
+    if (gs.length){
+      const v = gs.map(gm => +gm.v[key]);
+      if (!hasLine){ b = fmt(+(v.reduce((t, q) => t + q, 0) / v.length).toFixed(1)); sm = "avg"; }
+      else {
+        const h = v.filter(q => more ? q > line : q < line).length, r = h / v.length;
+        b = h + "/" + v.length; sm = pct(r); cls = r >= 0.7 ? " hot" : r >= 0.55 ? " warm" : r < 0.4 ? " cold" : "";
+      }
+    }
+    return '<button class="rt' + cls + (cur === id ? " on" : "") + (gs.length ? "" : " none") + '" data-rng="' + id + '"' + (gs.length ? "" : " disabled") + '><span>' + esc(label) + '</span><b>' + esc(b) + '</b><small>' + esc(sm) + '</small></button>';
+  };
+  const ts = [tile(all.slice(0, 5), "L5", "5"), tile(all.slice(0, 10), "L10", "10"), tile(all.slice(0, 20), "L20", "20")];
+  if (base.season) ts.push(tile(all, "Season", "0"));
+  if (base.opp) ts.push(tile(vs, "v " + base.opp, "opp"));
+  return '<div class="rtiles n' + ts.length + '">' + ts.join("") + '</div>';
+}
+
 function formInner(x, pr){
-  const base = S.forms[x.g.id + "|" + x.p.id];
-  if (!base || base.loading) return '<div class="small muted">Loading recent games...</div>';
-  if (base.error || !base.games || !base.games.length) return '<div class="small muted">No recent games to go on.</div>' + dvpBox(base, x, pr);
-  let top = formFilters(x, base);
-  if (base.injury && FEAT().screener) top = '<div class="small" style="color:var(--amber);margin-bottom:6px">' + esc(base.injury + (base.injury_note ? ": " + base.injury_note : "")) + '</div>' + top;
+  const base = sheetForm(x);
+  if (!base || base.loading) return '<div class="cload"><div class="spin"></div>Reading his recent games</div>';
+  if (base.error || !base.games || !base.games.length) return '<div class="small muted">No recent games to go on.</div>';
+  const top = formFilters(x, base);
+  const line = parseFloat(x.line), more = x.side !== "less", hasLine = !isNaN(line), key = pr.key;
+  const tiles = rangeTiles(x, base, pr, line, more, hasLine);
   const ff = x.ff || "all";
-  const line = parseFloat(x.line), more = x.side === "more", hasLine = !isNaN(line);
-  // the tiles always cover every game: the last 5, the last 10, the season and tonight's opponent
-  const tiles = hitTiles(base, pr, line, more, hasLine);
   let games = base.games, tag = "";
   if (ff === "home"){ games = games.filter(gm => gm.at === "v"); tag = " at home"; }
   else if (ff === "away"){ games = games.filter(gm => gm.at === "@"); tag = " away"; }
   else if (ff === "opp"){ games = games.filter(gm => gm.opp === base.opp).concat(base.vs_prev || []); tag = " v " + base.opp; }
   else if (ff === "without"){
-    if (!x.wo) return top + tiles + '<div class="small muted">Pick the teammate to leave out.</div>';
+    if (!x.wo) return tiles + top + '<div class="small muted">Pick the teammate to leave out.</div>';
     const fw = S.forms[formKey(x)];
-    if (!fw || fw.loading) return top + tiles + '<div class="small muted">Checking which games they missed...</div>';
-    if (fw.error || !fw.games) return top + tiles + '<div class="small muted">Couldn\'t check that teammate.</div>';
+    if (!fw || fw.loading) return tiles + top + '<div class="small muted">Checking which games they missed...</div>';
+    if (fw.error || !fw.games) return tiles + top + '<div class="small muted">Couldn\'t check that teammate.</div>';
     games = fw.games.filter(gm => gm.tm === false);
-    if (!games.length) return top + tiles + '<div class="small muted">' + esc(fw.without_name || "They") + ' played in all of the last ' + fw.games.length + ' games, so there\'s nothing to compare yet.</div>';
+    if (!games.length) return tiles + top + '<div class="small muted">' + esc(fw.without_name || "They") + ' played in all of the last ' + fw.games.length + ' games, so there\'s nothing to compare yet.</div>';
     tag = " without " + String(fw.without_name || "them").split(" ").slice(-1)[0];
   }
-  const mu = dvpBox(base, x, pr) || (FEAT().screener && base.matchup && base.matchup[pr.key] ? '<div class="mu">' + esc(base.matchup[pr.key].text) + '</div>' : '');
-  games = games.filter(gm => gm.v[pr.key] != null);
-  const vals = games.map(gm => gm.v[pr.key]);
-  if (!vals.length) return top + tiles + '<div class="small muted">' + (ff === "all" ? "No recent numbers for this stat." : "None of the last " + base.games.length + " games fit that.") + '</div>' + mu;
-  const hit = v => more ? v > line : v < line;
-  const n10 = Math.min(10, vals.length), n5 = Math.min(5, vals.length);
-  const last10 = vals.slice(0, n10), last5 = vals.slice(0, n5);
-  const avg = a => a.reduce((t, v) => t + v, 0) / a.length;
-  let head;
-  const some = ff === "all" ? "the last " + n10 : n10 === vals.length ? n10 + (n10 === 1 ? " game" : " games") + tag : "the last " + n10 + tag;
-  if (!hasLine) head = "Averaging " + fmt(+avg(last10).toFixed(1)) + " over " + some;
-  else if (pr.yesno) head = (more ? "Happened in " : "Didn't happen in ") + last10.filter(hit).length + " of " + some;
-  else head = "Hit in " + last10.filter(hit).length + " of " + some;
-  const sub = pr.yesno ? "" : vals.length < 5 ? "Avg " + fmt(+avg(vals).toFixed(1)) + " in " + (vals.length === 1 ? "that game" : "those " + vals.length)
-    : "Avg " + fmt(+avg(last5).toFixed(1)) + " last 5 · " + fmt(+avg(last10).toFixed(1)) + (n10 < 10 ? " in all " + n10 : " last 10") + (base.season && ff === "all" && vals.length > 10 ? " · " + fmt(+avg(vals).toFixed(1)) + " season" : "");
-  const shown = games.slice(0, n10).reverse();
-  return top + tiles + '<div class="big">' + head + '</div>' + (sub ? '<div class="small muted">' + sub + '</div>' : '') +
-    hitBars(shown, pr.key, hasLine ? line : NaN, more, ff === "opp") + mu;
+  games = games.filter(gm => gm.v[key] != null);
+  if (!games.length) return tiles + top + '<div class="small muted">' + (ff === "all" ? "No recent numbers for this stat." : "None of the last " + base.games.length + " games fit that.") + '</div>';
+  const n = ff === "opp" || ff === "without" ? games.length : (x.n == null ? 10 : x.n) || games.length;
+  const shown = games.slice(0, n);
+  const vals = shown.map(gm => +gm.v[key]);
+  const avg = vals.reduce((t, v) => t + v, 0) / vals.length;
+  const mins = shown.map(gm => gm.min).filter(v => v != null);
+  const hits = hasLine ? vals.filter(v => more ? v > line : v < line).length : null;
+  const streak = streakOf(games, key, line, more);
+  const what = (ff === "all" ? (n >= games.length && base.season ? "this season" : "last " + shown.length) : shown.length + (shown.length === 1 ? " game" : " games") + tag);
+  const sum = '<div class="csum"><div><b>' + fmt(+avg.toFixed(1)) + '</b><span>Average</span></div>' +
+    (hits != null ? '<div><b class="' + (hits / vals.length >= 0.6 ? "pos" : hits / vals.length < 0.4 ? "neg" : "") + '">' + pct(hits / vals.length) + '</b><span>Hit ' + hits + ' of ' + vals.length + '</span></div>' : '') +
+    (mins.length ? '<div><b>' + fmt(Math.round(mins.reduce((t, v) => t + v, 0) / mins.length)) + '</b><span>Minutes</span></div>' : '') +
+    '<div>' + (streak >= STREAK_MIN ? flameHtml(streak, "sum") : '<b>' + streak + '</b>') + '<span>In a row</span></div></div>';
+  return tiles + top + sum + '<div class="cwrap' + (shown.length > 20 ? " scroll" : "") + '">' + chartSvg(shown.slice().reverse(), key, hasLine ? line : NaN, more, x.g.sport) + '</div>' +
+    '<div class="cwhat">' + esc(what.charAt(0).toUpperCase() + what.slice(1)) + ', oldest to newest</div>';
 }
+
+// The last five games for each main stat, green over the line and red under, like a form guide.
+function last5Inner(x){
+  const base = sheetForm(x);
+  if (!base || !base.games || !base.games.length) return "";
+  const keys = (SUMMARY_KEYS[x.g.sport] || []).filter(k => x.list.some(q => q.key === k));
+  if (!keys.includes(x.stat) && x.list.some(q => q.key === x.stat && !q.yesno)) keys.unshift(x.stat);
+  const games = base.games.slice(0, 5).reverse();
+  if (!keys.length || !games.length) return "";
+  let h = '<div class="l5"><div class="l5r l5h"><span></span>' + games.map(gm => '<span>' + esc((gm.at === "@" ? "@" : "") + (gm.opp || "")) + '</span>').join("") + '<span>Hit</span></div>';
+  keys.forEach(k => {
+    const pr = x.list.find(q => q.key === k) || {}, ln = lineFor(x, k), more = k === x.stat ? x.side !== "less" : true;
+    const has = !isNaN(ln);
+    let hit = 0, cnt = 0, sum = 0;
+    const cells = games.map(gm => {
+      const v = gm.v[k];
+      if (v == null) return '<span class="bx none">–</span>';
+      cnt++; sum += +v;
+      const ok = has ? (more ? v > ln : v < ln) : null;
+      if (ok) hit++;
+      return '<span class="bx' + (ok == null ? "" : ok ? " up" : " dn") + '">' + esc(fmt(v)) + '</span>';
+    }).join("");
+    h += '<button class="l5r' + (k === x.stat ? " on" : "") + '" data-stat="' + esc(k) + '"><span class="l5k"><b>' + esc(pr.short || k) + '</b><small>' + (has ? (more ? "over " : "under ") + esc(fmt(ln)) : "avg " + esc(fmt(cnt ? +(sum / cnt).toFixed(1) : 0))) + '</small></span>' + cells +
+      '<span class="l5t">' + (has ? '<b>' + hit + '<small>/' + cnt + '</small></b>' : '<b>' + esc(fmt(cnt ? +(sum / cnt).toFixed(1) : 0)) + '</b>') + '</span></button>';
+  });
+  return h + '</div>';
+}
+
+// What tonight's side gives up at his position, and where he ranks, as bars.
+function matchupInner(x, pr){
+  const base = sheetForm(x), D = base && base.dvp;
+  if (!D || !FEAT().screener) return "";
+  if (!D.ready) return D.building ? '<div class="small muted">Reading the league\'s box scores for the matchup grade...</div>' : "";
+  const m = D.props && D.props[pr.key];
+  if (!m) return base.matchup && base.matchup[pr.key] ? '<div class="small muted">' + esc(base.matchup[pr.key].text) + '</div>' : "";
+  const tier = x.side === "less" ? m.tier_less : m.tier, d = m.d || {}, me = m.m || {}, pos = String(D.pos_name || "players").toLowerCase();
+  const bar = (rank, of) => of ? Math.max(4, Math.round((of - rank + 1) / of * 100)) : 0;
+  let h = '<div class="mgrade t-' + esc(tier || "even") + '"><b>' + esc(GRADE[tier] || "C") + '</b><div><div class="t">' + esc((TIER_NAME[tier] || "Even") + " matchup" + (x.side === "less" ? " for the under" : "")) + '</div><div class="small muted">' + esc(m.text) + '.</div></div></div>';
+  if (d.rank && d.of) h += '<div class="mrow"><div class="ml"><b>' + esc(d.team || base.opp || "") + '</b> give up ' + esc(fmt(d.allowed)) + ' ' + esc(pr.short || "") + ' to ' + esc(pos) + '</div><div class="mbar"><i style="width:' + bar(d.rank, d.of) + '%"></i></div><div class="mr">' + esc(ordn(d.rank <= (d.of + 1) / 2 ? d.rank : d.of - d.rank + 1)) + (d.rank <= (d.of + 1) / 2 ? " most" : " fewest") + '<small>of ' + esc(d.of) + ' · avg ' + esc(fmt(d.avg)) + '</small></div></div>';
+  if (me.rank && me.of) h += '<div class="mrow"><div class="ml"><b>' + esc(shortName(x.p)) + '</b> averages ' + esc(fmt(me.avg)) + '</div><div class="mbar me"><i style="width:' + bar(me.rank, me.of) + '%"></i></div><div class="mr">#' + esc(me.rank) + '<small>of ' + esc(me.of) + ' ' + esc(pos) + '</small></div></div>';
+  const pj = muProj(m, x.line);
+  if (pj) h += '<div class="small" style="margin-top:8px">' + esc(pj) + '.</div>';
+  return h;
+}
+
+function updateFormBox(){
+  const x = S.sheet;
+  if (!x) return;
+  const pr = x.list.find(q => q.key === x.stat) || {};
+  const set = (id, html) => { const el = $(id); if (el) el.innerHTML = html; };
+  set("pcardbox", cardInner(x, pr));
+  set("formbox", formInner(x, pr));
+  const l5 = last5Inner(x), mu = matchupInner(x, pr);
+  set("l5box", l5); set("mubox2", mu);
+  const l5w = $("l5wrap"), muw = $("muwrap");
+  if (l5w) l5w.hidden = !l5;
+  if (muw) muw.hidden = !mu;
+}
+
 // Hit rate tiles: last 5, last 10, the season and against tonight's side (this season and last). Averages when there's no line.
 function hitTiles(base, pr, line, more, hasLine){
   const all = (base.games || []).filter(gm => gm.v[pr.key] != null), key = pr.key;
@@ -4141,7 +4542,7 @@ function openSheet(p, g, stat){
   const list = (p.isMatch ? S.game.props.match : S.game.props.player) || [];
   const last = LS.get("last-" + sport + (p.isMatch ? "-m" : ""), {});
   const st = stat || (list.find(x => x.key === last.stat) ? last.stat : (list[0] || {}).key);
-  S.sheet = {p, g, list, stat:st, side:last.side || "more", alerts:null, line:null, odds:null, market:null, chips:[], ff:"all", wo:""};
+  S.sheet = {p, g, list, stat:st, side:last.side || "more", alerts:null, line:null, odds:null, market:null, chips:[], ff:"all", wo:"", n:10};
   setStat(st);
   renderSheet();
   if (!p.isMatch && FEAT().form && !g.demo && sport !== "tennis") loadForm(p, g);
@@ -4178,24 +4579,40 @@ function renderSheet(){
   const x = S.sheet; if (!x) return;
   const p = x.p, g = x.g, pr = x.list.find(q => q.key === x.stat) || {};
   const live = g.state !== "pre" && !g.roster_only;
-  const title = p.isMatch ? esc(p.name) + " v " + esc(p.vs) : esc(p.name);
-  const sub = p.isMatch ? ["Match bets"] : [p.team, p.jersey ? "#" + p.jersey : "", live && p.line ? p.line : ""].filter(Boolean);
-  const av = avatarHtml({athlete_id:p.isMatch ? "match" : p.id, name:p.name, team:p.team, league:g.league, sport:g.sport,
-    game:{home:g.home.abbr, away:g.away.abbr, home_logo:g.home.logo, away_logo:g.away.logo, home_color:g.home.color, away_color:g.away.color, home_name:g.home.short, away_name:g.away.short, sport:g.sport, demo:g.demo}});
-  let h = '<div class="grab"></div><div class="sheethead">' + av + '<div class="grow"><div style="font-weight:700;font-size:18px;line-height:1.2">' + title + '</div><div class="subrow">' + sub.map(t => '<span>' + esc(t) + '</span>').join("") + '</div></div></div>';
-  h += '<div class="label">Stat</div><div class="stats">' + x.list.map(q => '<button data-stat="' + esc(q.key) + '" class="' + (x.stat === q.key ? "on" : "") + '">' + esc(q.short) + '<small>' + (live ? "now " + fmt(curVal(p, q)) : statHint(p, q)) + '</small></button>').join("") + '</div>';
+  const cardOn = !p.isMatch && FEAT().form && !g.demo && g.sport !== "tennis";
+  if (x.n == null) x.n = 10;
+  let h = '<div class="grab"></div>';
+  if (cardOn) h += '<div id="pcardbox">' + cardInner(x, pr) + '</div>';
+  else {
+    const title = p.isMatch ? esc(p.name) + " v " + esc(p.vs) : esc(p.name);
+    const sub = p.isMatch ? ["Match bets"] : [p.team, p.jersey ? "#" + p.jersey : "", live && p.line ? p.line : ""].filter(Boolean);
+    const av = avatarHtml({athlete_id:p.isMatch ? "match" : p.id, name:p.name, team:p.team, league:g.league, sport:g.sport,
+      game:{home:g.home.abbr, away:g.away.abbr, home_logo:g.home.logo, away_logo:g.away.logo, home_color:g.home.color, away_color:g.away.color, home_name:g.home.short, away_name:g.away.short, sport:g.sport, demo:g.demo}});
+    h += '<div class="sheethead">' + av + '<div class="grow"><div style="font-weight:750;font-size:19px;line-height:1.2">' + title + '</div><div class="subrow">' + sub.map(t => '<span>' + esc(t) + '</span>').join("") + '</div></div></div>';
+  }
+  h += '<div class="stabs" role="tablist" aria-label="Stat">' + x.list.map(q => '<button role="tab" aria-selected="' + (x.stat === q.key) + '" data-stat="' + esc(q.key) + '" class="' + (x.stat === q.key ? "on" : "") + '">' + esc(q.short) + '<small>' + (live ? "now " + fmt(curVal(p, q)) : statHint(p, q)) + '</small></button>').join("") + '</div>';
   x.chips = lineChips(x.market, pr);
-  if (x.chips.length) h += '<div class="label">' + ((gameLines() || {}).provider ? 'Lines from ' + esc(gameLines().provider) : 'Lines') + '</div><div class="lchips">' + x.chips.map((c, i) => '<button class="lchip' + (Math.abs(c.line - parseFloat(x.line)) < 1e-6 && c.side === x.side ? " on" : "") + '" data-lc="' + i + '">' + esc(c.label) + '<small>' + money(c.price) + '</small></button>').join("") + '</div>' + marketNote(x.market, pr);
-  else if (S.game && S.game.lines_note && !live) h += '<div class="small muted" style="margin-top:-6px">' + esc(S.game.lines_note) + '</div>';
+  // the line and the side: under the graph on a player, so moving the line moves the bars
+  let ctl = "";
   if (!pr.yesno){
-    h += '<div class="label">Line</div><div class="linebox"><button class="iconbtn" id="lminus">&minus;</button><input id="linein" type="number" inputmode="decimal" step="0.5" min="0" placeholder="No line" value="' + esc(x.line) + '"><button class="iconbtn" id="lplus">+</button></div>';
-    h += '<div class="small muted" style="margin-top:6px">Clear the line to just get alerts with no target.</div>';
+    ctl += '<div class="linebox"><button class="iconbtn" id="lminus" aria-label="Line down">&minus;</button><input id="linein" type="number" inputmode="decimal" step="0.5" min="0" placeholder="No line" aria-label="Line" value="' + esc(x.line) + '"><button class="iconbtn" id="lplus" aria-label="Line up">+</button></div>';
     if (x.stat === "HCAP" || x.stat === "ACAP"){
       const cp = side => capText({stat:x.stat, side, line:parseFloat(x.line) || 0, sport:g.sport, game:{home_name:g.home.short || g.home.name, away_name:g.away.short || g.away.name}});
-      h += '<div class="label">Side</div><div class="seg"><button class="more' + (x.side === "more" ? " on" : "") + '" data-side="more">' + esc(cp("more")) + '</button><button class="less' + (x.side === "less" ? " on" : "") + '" data-side="less">' + esc(cp("less")) + '</button></div>';
-    } else h += '<div class="label">Side</div><div class="seg"><button class="more' + (x.side === "more" ? " on" : "") + '" data-side="more">More (over)</button><button class="less' + (x.side === "less" ? " on" : "") + '" data-side="less">Less (under)</button></div>';
+      ctl += '<div class="seg"><button class="more' + (x.side === "more" ? " on" : "") + '" data-side="more">' + esc(cp("more")) + '</button><button class="less' + (x.side === "less" ? " on" : "") + '" data-side="less">' + esc(cp("less")) + '</button></div>';
+    } else ctl += '<div class="seg"><button class="more' + (x.side === "more" ? " on" : "") + '" data-side="more">More (over)</button><button class="less' + (x.side === "less" ? " on" : "") + '" data-side="less">Less (under)</button></div>';
   } else {
-    h += '<div class="label">' + esc(pr.name) + '</div><div class="seg"><button class="more' + (x.side === "more" ? " on" : "") + '" data-side="more">Yes</button><button class="less' + (x.side === "less" ? " on" : "") + '" data-side="less">No</button></div>';
+    ctl += '<div class="seg"><button class="more' + (x.side === "more" ? " on" : "") + '" data-side="more">Yes</button><button class="less' + (x.side === "less" ? " on" : "") + '" data-side="less">No</button></div>';
+  }
+  const chips = x.chips.length ? '<div class="label">' + ((gameLines() || {}).provider ? 'Lines from ' + esc(gameLines().provider) : 'Lines') + '</div><div class="lchips">' + x.chips.map((c, i) => '<button class="lchip' + (Math.abs(c.line - parseFloat(x.line)) < 1e-6 && c.side === x.side ? " on" : "") + '" data-lc="' + i + '">' + esc(c.label) + '<small>' + money(c.price) + '</small></button>').join("") + '</div>' + marketNote(x.market, pr)
+    : (S.game && S.game.lines_note && !live ? '<div class="small muted" style="margin-top:10px">' + esc(S.game.lines_note) + '</div>' : '');
+  if (cardOn){
+    h += '<div class="cpanel"><div id="formbox">' + formInner(x, pr) + '</div><div class="cctl">' + ctl + '</div>' + (!pr.yesno ? '<div class="small muted cnote">Clear the line to just get alerts with no target.</div>' : '') + '</div>';
+    h += chips;
+    const l5 = last5Inner(x), mu = matchupInner(x, pr);
+    h += '<div id="l5wrap"' + (l5 ? '' : ' hidden') + '><h4 class="sh">Last five</h4><div id="l5box">' + l5 + '</div></div>';
+    h += '<div id="muwrap"' + (mu ? '' : ' hidden') + '><h4 class="sh">Matchup</h4><div id="mubox2" class="card mcard">' + mu + '</div></div>';
+  } else {
+    h += chips + '<div class="label">' + (pr.yesno ? esc(pr.name) : 'Line') + '</div>' + ctl + (!pr.yesno ? '<div class="small muted" style="margin-top:6px">Clear the line to just get alerts with no target.</div>' : '');
   }
   const subOk = FEAT().subs && g.sport === "soccer" && !p.isMatch && x.side === "more";
   if (subOk){
@@ -4203,18 +4620,28 @@ function renderSheet(){
     h += '<div class="label">Sub on, play on</div><div class="toggle"><div class="small muted">If he comes off, the bet moves to the player who replaces him</div><button class="switch' + (x.subs ? " on" : "") + '" id="ssub" aria-label="Sub on, play on"></button></div>';
   }
   if (!SETTLE[x.stat]) h += '<div class="label">Alerts</div><div class="seg"><button data-al="all" class="' + (x.alerts === "all" ? "on" : "") + '">' + (p.isMatch && g.sport === "basketball" ? "Every score" : "Every change") + '</button><button data-al="key" class="' + (x.alerts === "key" ? "on" : "") + '">Result only</button></div>';
-  if (!p.isMatch && FEAT().form && !g.demo && g.sport !== "tennis") h += '<div class="label">Form</div><div class="formbox" id="formbox">' + formInner(x, pr) + '</div>';
   if (x.stat === "HCAP" || x.stat === "ACAP") h += '<div class="small muted" style="margin-top:8px">Settles on the final margin' + (g.sport === "tennis" ? " in games" : "") + '. You get one alert with the result.</div>';
   else if (!pr.mono && !pr.yesno && !SETTLE[x.stat]) h += '<div class="small muted" style="margin-top:8px">Yards can go back down on a loss, so this one stays open until full time.</div>';
   if (x.stat === "HWIN" || x.stat === "AWIN" || x.stat === "DRAW") h += '<div class="small muted" style="margin-top:8px">' + (g.sport === "soccer" ? "Settles on the score after 90 minutes." : g.sport === "tennis" ? "Settles on the result. If a player retires it still stands once a set is done." : "Settles on the final score.") + ' You get one alert with the result.</div>';
   else if (g.sport === "tennis") h += '<div class="small muted" style="margin-top:8px">If a player retires, this stands only if it was already decided. Otherwise it\'s void.</div>';
-  h += '<div id="sheeterr" class="err" style="margin-top:10px"></div><div class="row" style="margin-top:14px;gap:8px"><button class="btn" id="scancel">Cancel</button><button class="btn primary grow" id="sadd">' + addLabel(x) + '</button></div>';
+  h += '<div id="sheeterr" class="err" style="margin-top:10px"></div><div class="sheetbar"><button class="btn" id="scancel">Cancel</button><button class="btn primary grow" id="sadd">' + addLabel(x) + '</button></div>';
   $("sheetin").innerHTML = h;
   const fbx = $("formbox");
   if (fbx){
-    fbx.onclick = e => { const b = e.target.closest("[data-ff]"); if (!b) return; x.ff = b.dataset.ff; updateFormBox(); };
+    fbx.onclick = e => {
+      const r = e.target.closest("[data-rng]");
+      if (r){
+        if (r.dataset.rng === "opp") x.ff = "opp";
+        else { x.n = +r.dataset.rng; if (x.ff === "opp") x.ff = "all"; }
+        updateFormBox(); return;
+      }
+      const b = e.target.closest("[data-ff]"); if (!b) return;
+      x.ff = b.dataset.ff; updateFormBox();
+    };
     fbx.onchange = e => { if (e.target.id === "ffwo"){ x.wo = e.target.value; if (x.wo) loadForm(p, g, x.wo); else updateFormBox(); } };
   }
+  const l5b = $("l5box");
+  if (l5b) l5b.onclick = e => { const b = e.target.closest("[data-stat]"); if (!b) return; setStat(b.dataset.stat); renderSheet(); };
   const inp = $("linein");
   const relook = () => {
     x.odds = x.market ? priceAt(x.market, pr.yesno ? 0.5 : parseFloat(x.line), x.side) : null;
@@ -4229,7 +4656,7 @@ function renderSheet(){
     $("lminus").onclick = () => step(-1); $("lplus").onclick = () => step(1);
   }
   $("sheetin").querySelectorAll("[data-lc]").forEach(b => b.onclick = () => { const c = x.chips[+b.dataset.lc]; x.line = String(c.line); x.side = c.side; x.odds = c.price; renderSheet(); });
-  $("sheetin").querySelectorAll("[data-stat]").forEach(b => b.onclick = () => { setStat(b.dataset.stat); renderSheet(); });
+  $("sheetin").querySelectorAll(".stabs [data-stat]").forEach(b => b.onclick = () => { setStat(b.dataset.stat); renderSheet(); });
   $("sheetin").querySelectorAll("[data-side]").forEach(b => b.onclick = () => { x.side = b.dataset.side; x.odds = x.market ? priceAt(x.market, pr.yesno ? 0.5 : parseFloat(x.line), x.side) : null; renderSheet(); });
   $("sheetin").querySelectorAll("[data-al]").forEach(b => b.onclick = () => { x.alerts = b.dataset.al; renderSheet(); });
   const ss = $("ssub"); if (ss) ss.onclick = () => { x.subs = !x.subs; renderSheet(); };
@@ -4238,8 +4665,9 @@ function renderSheet(){
     const raw = pr.yesno ? "0.5" : (inp ? inp.value.trim() : "");
     if (raw !== "" && (isNaN(parseFloat(raw)) || parseFloat(raw) < 0)) { $("sheeterr").textContent = "That line doesn't look right."; return; }
     $("sadd").disabled = true;
+    const fb = sheetForm(x), streak = raw !== "" && fb && fb.games ? streakOf(fb.games, x.stat, parseFloat(raw), x.side !== "less") : 0;
     try{
-      await api("/api/picks", {game_id:g.id, athlete_id:p.id, name:p.name, short:p.short, team:p.team, stat:x.stat, side:x.side, alerts:x.alerts, line: raw === "" ? null : parseFloat(raw), odds: x.odds || null, sub_on: subOk ? !!x.subs : undefined});
+      await api("/api/picks", {game_id:g.id, athlete_id:p.id, name:p.name, short:p.short, team:p.team, stat:x.stat, side:x.side, alerts:x.alerts, line: raw === "" ? null : parseFloat(raw), odds: x.odds || null, sub_on: subOk ? !!x.subs : undefined, streak: streak || undefined});
       LS.set("last-" + (g.sport || "basketball") + (p.isMatch ? "-m" : ""), {stat:x.stat, side:x.side});
       closeSheet(); await loadState(); renderGame();
       const what = (pr.yesno ? pr.name + ": " + (x.side === "more" ? "Yes" : "No") : (raw === "" ? pr.name : (x.side === "more" ? "More " : "Less ") + raw + " " + pr.name)) + (x.odds ? " @ " + money(x.odds) : "");
@@ -4264,12 +4692,12 @@ setInterval(() => { if (S.gameId && !S.sheet && document.activeElement !== $("ps
 setInterval(() => { if (S.state) setFeed(S.state.feed); }, 5000);
 document.addEventListener("visibilitychange", () => { if (!document.hidden){ loadState(); if (S.tab === "games") loadGames(); } });
 </script>
-<div id="othertab" style="display:none;position:fixed;inset:0;z-index:90;background:#0c1424;align-items:center;justify-content:center;padding:24px;text-align:center"><div style="max-width:340px"><div style="font-weight:700;font-size:18px;margin-bottom:8px">Overline is open in another tab</div><div style="color:#8d9ab2;font-size:15px">Use that one, or close it and this tab takes over.</div></div></div>
+<div id="othertab" style="display:none;position:fixed;inset:0;z-index:90;background:#090f1c;align-items:center;justify-content:center;padding:24px;text-align:center"><div style="max-width:340px"><div style="font-weight:700;font-size:18px;margin-bottom:8px">Overline is open in another tab</div><div style="color:#8d9ab2;font-size:15px">Use that one, or close it and this tab takes over.</div></div></div>
 <script>
 (function(){
   function start(){
     var s = document.createElement("script");
-    s.src = "engine.js?v=4.12";
+    s.src = "engine.js?v=5.0";
     s.onload = function(){ try { window.main([]); } catch (e) { window.__engineFailed(); } };
     s.onerror = function(){ window.__engineFailed(); };
     document.body.appendChild(s);
