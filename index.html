@@ -819,6 +819,22 @@ nav.tabs button.on:before{content:"";position:absolute;top:3px;left:50%;width:18
 @keyframes olrun{0%{width:0;opacity:1}72%{width:100%;opacity:1}100%{width:100%;opacity:0}}
 /* empty screens carry the mark */
 .empty b:before{content:"";display:block;width:24px;height:38px;margin:0 auto 14px;background:var(--faint);opacity:.7;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 40 63%22%3E%3Cpath fill-rule=%22evenodd%22 d=%22M17,19H23A13,13 0 0 1 36,32V50A13,13 0 0 1 23,63H17A13,13 0 0 1 4,50V32A13,13 0 0 1 17,19ZM20,28A6,6 0 0 0 14,34V48A6,6 0 0 0 20,54H20A6,6 0 0 0 26,48V34A6,6 0 0 0 20,28Z%22/%3E%3Cpath d=%22M5,4H28.1V14H5A5,5 0 0 1 5,4ZM35.9,4H35A5,5 0 0 1 35,14H35.9Z%22/%3E%3Cpath d=%22M32,0H32A1.7,1.7 0 0 1 33.7,1.7V16.3A1.7,1.7 0 0 1 32,18H32A1.7,1.7 0 0 1 30.3,16.3V1.7A1.7,1.7 0 0 1 32,0Z%22/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 40 63%22%3E%3Cpath fill-rule=%22evenodd%22 d=%22M17,19H23A13,13 0 0 1 36,32V50A13,13 0 0 1 23,63H17A13,13 0 0 1 4,50V32A13,13 0 0 1 17,19ZM20,28A6,6 0 0 0 14,34V48A6,6 0 0 0 20,54H20A6,6 0 0 0 26,48V34A6,6 0 0 0 20,28Z%22/%3E%3Cpath d=%22M5,4H28.1V14H5A5,5 0 0 1 5,4ZM35.9,4H35A5,5 0 0 1 35,14H35.9Z%22/%3E%3Cpath d=%22M32,0H32A1.7,1.7 0 0 1 33.7,1.7V16.3A1.7,1.7 0 0 1 32,18H32A1.7,1.7 0 0 1 30.3,16.3V1.7A1.7,1.7 0 0 1 32,0Z%22/%3E%3C/svg%3E") center/contain no-repeat}
+
+/* every player gets a picture: a photo where there is one, his team's jersey where there isn't */
+.av .face{background:var(--card2)}
+.av .face.haspic{background:var(--tc,var(--card2))}
+.av .face .jsy{position:absolute;left:10%;top:10%;width:80%;height:80%}
+.face.haspic .jsy,.face.haspic .mono,.num.haspic .jsy{visibility:hidden}
+.av .face img.pic,.player .num img.pic{left:0;top:0;bottom:auto;width:100%;height:100%;max-width:none;object-fit:cover;object-position:50% 18%;transform:none}
+.jsy text{font-family:var(--num);font-weight:800;letter-spacing:.01em}
+.player .num{color:transparent}
+.player .num .jsy{position:absolute;left:2px;top:2px;width:30px;height:30px}
+.pc-art{position:absolute;inset:0;z-index:-1;pointer-events:none}
+.pc-photo{position:absolute;right:16px;top:54px;width:116px;height:146px;margin:0;border-radius:18px;overflow:hidden;box-shadow:0 14px 28px rgba(0,0,0,.32),0 0 0 3px rgba(255,255,255,.24)}
+.pc-photo img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 18%}
+.pc-cred{position:absolute;right:16px;top:206px;width:116px;text-align:center;font:650 10px/1.2 var(--ui);color:inherit;opacity:.72;text-decoration:none}
+.pc-jsy{position:absolute;right:-10px;bottom:40px;width:188px;height:188px;filter:drop-shadow(0 12px 22px rgba(0,0,0,.32))}
+.pc-jsy text{font-size:12px}
 </style>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -1102,6 +1118,107 @@ function faceUrl(league, id, w){
 const NOIMG = 'onerror="var a=this.getAttribute(\'data-alt\');if(a){this.removeAttribute(\'data-alt\');this.src=a}else{var p=this.parentNode;p.classList.remove(\'pic\',\'flag\',\'img\');this.remove()}"';
 // ESPN keeps a version of each crest drawn for dark backgrounds (a white Juventus J and so on).
 function darkLogo(url){ return /\/i\/teamlogos\/(?!countries\/)[a-z0-9_.-]+\/500\//i.test(url || "") ? url.replace("/500/", "/500-dark/") : ""; }
+/* ---------- photos for every player ---------- */
+// ESPN has headshots for the NBA, WNBA, NFL, NHL, tennis and some soccer players. For everyone else the engine finds
+// the photo on the player's Wikipedia page, once, and it's kept here. No photo to be had: his team's jersey and number.
+// Kept a month (a week for players with none), so new photos get picked up.
+const PHOTOS = (() => { const o = LS.get("photos-v1", {}), now = Date.now(); for (const k in o){ const v = o[k]; if (!v || !v.t || now - v.t > (v.u ? 30 : 7) * 864e5) delete o[k]; } return o; })();
+// Photos that wouldn't load this time (offline, say): the jersey for now, try again next time.
+const photoDead = {}, espnMiss = {};
+const photoQ = [];
+let photoBusy = false, photoPause = 0;
+const sportOf = lg => lg === "afl" ? "aussie" : lg === "nrl" ? "league" : ["nbl", "nba", "wnba"].includes(lg) ? "basketball" : lg === "nfl" ? "football" :
+  lg === "nhl" ? "hockey" : lg === "atp" || lg === "wta" ? "tennis" : String(lg || "").includes(".") ? "soccer" : "";
+// {u: the picture, kind: "cut" for an ESPN cut-out or "pic" for a photo, fk: the key to fill in later, want: look it up}
+function photoFor(league, id, w){
+  if (!/^\d+$/.test(String(id || "")) || !league || league === "demo") return {u:""};
+  if (FACES[league]) return {u:faceUrl(league, id, w), kind:"cut"};
+  const k = league + ":" + id, v = PHOTOS[k];
+  if (photoDead[k]) return {u:"", fk:k};
+  if (v) return v.u ? {u:v.u, kind:"pic", page:v.p, fk:k} : {u:"", fk:k};
+  if (String(league).includes(".") && !espnMiss[k]) return {u:faceUrl(league, id, w), kind:"cut", fk:k};
+  return {u:"", fk:k, want:true};
+}
+function needPhoto(league, sport, id, name, first){
+  const k = league + ":" + id;
+  if (!name || !sport || !/^\d+$/.test(String(id || "")) || PHOTOS[k] !== undefined || Date.now() < photoPause) return;
+  const at = photoQ.findIndex(q => q.k === k);
+  if (at >= 0){ if (first && at > 0) photoQ.unshift(photoQ.splice(at, 1)[0]); return; }
+  if (photoQ.length >= 150) return;
+  const q = {k, league, sport, id:String(id), name};
+  if (first) photoQ.unshift(q); else photoQ.push(q);
+  if (!photoBusy) setTimeout(pumpPhotos, 60);
+}
+async function pumpPhotos(){
+  if (photoBusy) return;
+  photoBusy = true;
+  try{
+    while (photoQ.length){
+      const q = photoQ.shift();
+      if (PHOTOS[q.k] !== undefined) continue;
+      let r;
+      try { r = await api("/api/face?league=" + encodeURIComponent(q.league) + "&sport=" + encodeURIComponent(q.sport) + "&id=" + encodeURIComponent(q.id) + "&name=" + encodeURIComponent(q.name)); }
+      catch(e){ photoQ.length = 0; photoPause = Date.now() + 60000; break; }
+      if (!r || r.later){ photoQ.length = 0; photoPause = Date.now() + 5 * 60000; break; }
+      PHOTOS[q.k] = {u:r.u || "", p:r.p || "", t:Date.now()};
+      savePhotos();
+      if (r.u) showPhoto(q.k);
+    }
+  } finally { photoBusy = false; }
+}
+function savePhotos(){ clearTimeout(savePhotos.t); savePhotos.t = setTimeout(() => LS.set("photos-v1", PHOTOS), 400); }
+// A photo turned up: put it in every face waiting for it, and redraw the card if it's his.
+function showPhoto(k){
+  const v = PHOTOS[k];
+  if (!v || !v.u) return;
+  document.querySelectorAll('[data-fk="' + k + '"]').forEach(box => {
+    if (box.querySelector("img")) return;
+    const img = new Image();
+    img.className = "pic"; img.alt = "";
+    img.onload = () => box.classList.add("haspic");
+    img.onerror = () => { img.remove(); photoDead[k] = true; };
+    img.src = v.u;
+    box.appendChild(img);
+  });
+  if (S.sheet && S.sheet.g && S.sheet.g.league + ":" + S.sheet.p.id === k) updateFormBox();
+}
+// A picture didn't load: ESPN had no soccer headshot (look on Wikipedia), or a Wikipedia photo has gone.
+function faceErr(img){
+  const box = img.parentNode, k = box && box.getAttribute("data-fk"), src = img.getAttribute("src");
+  img.remove();
+  if (box) box.classList.remove("haspic");
+  if (!k) return;
+  const v = PHOTOS[k];
+  if (v && v.u && src === v.u){ photoDead[k] = true; return; }
+  if (/espncdn\.com/.test(src || "")) espnMiss[k] = true;
+  if (v === undefined){ const i = k.indexOf(":"); needPhoto(k.slice(0, i), img.getAttribute("data-sp"), k.slice(i + 1), img.getAttribute("data-nm") || ""); }
+}
+// The jersey: his team's colour, a singlet for basketball and footy, a shirt for the rest, his number on it.
+const KIT = {
+  shirt:"M14 6 9 8 3.5 14 8 19 11 16.8V35h18V16.8L32 19 36.5 14 31 8 26 6c-1 2.6-3.2 4-6 4s-5-1.4-6-4Z",
+  singlet:"M13.5 5H16c.6 3.4 2 5 4 5s3.4-1.6 4-5h2.5c.2 4.5 1.8 7.5 4.5 9v21.5H9V14c2.7-1.5 4.3-4.5 4.5-9Z"
+};
+function kitColor(hex){
+  if (!/^[0-9a-f]{6}$/i.test(hex || "")) return {fill:"#3a4d78", ink:"#fff"};
+  const c = [0, 2, 4].map(i => parseInt(hex.substr(i, 2), 16));
+  const lum = (0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]) / 255;
+  const lift = lum < 0.12 ? 0.3 : 0;
+  return {fill:"rgb(" + c.map(v => Math.round(v + (255 - v) * lift)).join(",") + ")", ink:lum > 0.62 ? "#0b1220" : "#fff"};
+}
+function jerseySvg(hex, label, sport, cls){
+  const k = kitColor(hex), single = sport === "basketball" || sport === "aussie";
+  const t = String(label == null ? "" : label).slice(0, 3), fs = t.length >= 3 ? 10.5 : 14;
+  return '<svg class="jsy' + (cls ? " " + cls : "") + '" viewBox="0 0 40 40" aria-hidden="true"><path d="' + (single ? KIT.singlet : KIT.shirt) + '" fill="' + k.fill + '" stroke="rgba(255,255,255,.3)" stroke-width="1"/>' +
+    '<text x="20" y="' + (single ? 27.5 : 27) + '" text-anchor="middle" font-size="' + fs + '" fill="' + k.ink + '">' + esc(t) + '</text></svg>';
+}
+// What goes inside a round face: the jersey (initials for tennis) with the photo over it once it loads.
+function faceInner(league, sport, id, name, w, hex, label){
+  const ph = photoFor(league, id, w);
+  if (ph.want) needPhoto(league, sport, id, name);
+  const under = sport === "tennis" || !sport ? '<span class="mono">' + esc(initials(name)) + '</span>' : jerseySvg(hex, label || initials(name), sport);
+  const img = ph.u ? '<img class="' + (ph.kind === "pic" ? "pic" : "cut") + '" src="' + esc(ph.u) + '" alt="" onload="this.parentNode.classList.add(\'haspic\')" onerror="faceErr(this)" data-nm="' + esc(name) + '" data-sp="' + esc(sport) + '">' : '';
+  return {html:under + img, fk:ph.fk || ""};
+}
 function logoImg(logo, w){
   const dark = darkLogo(logo), src = small(dark || logo, w), alt = dark ? small(logo, w) : "";
   return src ? '<img src="' + esc(src) + '"' + (alt ? ' data-alt="' + esc(alt) + '"' : '') + ' alt="" ' + NOIMG + '>' : '';
@@ -1117,9 +1234,9 @@ function avatarHtml(p){
   if (p.athlete_id === "match") return '<span class="av pair">' + logoHtml(g.home_logo, g.home_color, tennis ? initials(g.home_name) : g.home, tennis) + logoHtml(g.away_logo, g.away_color, tennis ? initials(g.away_name) : g.away, tennis) + '</span>';
   const side = p.team && p.team === g.home ? "home" : p.team && p.team === g.away ? "away" : "";
   const logo = side ? small(g[side + "_logo"], tennis ? 80 : 48) : "", st = side ? tint(g[side + "_color"]) : "", raw = side ? g[side + "_logo"] : "";
-  const face = g.demo ? "" : faceUrl(p.league, p.athlete_id, 128);
-  return '<span class="av' + (face ? " img" : "") + '"><span class="face"' + (st ? ' style="--tc:' + st + '"' : '') + '><span class="mono">' + esc(initials(p.name)) + '</span>' +
-    (face ? '<img src="' + esc(face) + '" alt="" ' + NOIMG.replace("var p=this.parentNode;", "var p=this.parentNode.parentNode;") + '>' : '') + '</span>' +
+  const lg = p.league || String(p.game_id || "").split(":")[0] || (g.demo ? "demo" : "");
+  const fi = faceInner(g.demo ? "demo" : lg, p.sport || g.sport || sportOf(lg), p.athlete_id, p.name, 128, side ? g[side + "_color"] : "", p.jersey);
+  return '<span class="av"><span class="face"' + (fi.fk ? ' data-fk="' + esc(fi.fk) + '"' : '') + (st ? ' style="--tc:' + st + '"' : '') + '>' + fi.html + '</span>' +
     (logo ? '<span class="tm' + (tennis ? " flag" : "") + '">' + (tennis ? '<img src="' + esc(logo) + '" alt="" onerror="this.parentNode.remove()">' : logoImg(raw, 48).replace(NOIMG, 'onerror="var a=this.getAttribute(\'data-alt\');if(a){this.removeAttribute(\'data-alt\');this.src=a}else{this.parentNode.remove()}"')) + '</span>' : '') + '</span>';
 }
 function setDone(s){ const hi = Math.max(s[0], s[1]), lo = Math.min(s[0], s[1]); return (hi >= 6 && hi - lo >= 2) || (hi === 7 && lo === 6); }
@@ -2302,9 +2419,8 @@ async function loadPerfect(force){
   if (S.tab === "ladder" && S.playsSeg === "perfect") renderLadder();
 }
 function faceHtml(name, league, id, color){
-  const face = faceUrl(league, id, 128), st = tint(color);
-  return '<span class="av' + (face ? " img" : "") + '"><span class="face"' + (st ? ' style="--tc:' + st + '"' : '') + '><span class="mono">' + esc(initials(name)) + '</span>' +
-    (face ? '<img src="' + esc(face) + '" alt="" ' + NOIMG.replace("var p=this.parentNode;", "var p=this.parentNode.parentNode;") + '>' : '') + '</span></span>';
+  const st = tint(color), fi = faceInner(league, sportOf(league), id, name, 128, color, "");
+  return '<span class="av"><span class="face"' + (fi.fk ? ' data-fk="' + esc(fi.fk) + '"' : '') + (st ? ' style="--tc:' + st + '"' : '') + '>' + fi.html + '</span></span>';
 }
 function pfRow(r, t, i){
   const tracked = legTracked(r), bits = ['<b class="pos">' + r.k + ' of ' + r.k + '</b>'];
@@ -3836,11 +3952,12 @@ function renderGame(keepSearch){
       if (big && !S.open[openKey]) return;
       const n = mine.filter(m => m.athlete_id === p.id).length;
       const ls = pre || g.roster_only ? lineSummary(p.id, g.sport) : "";
-      const face = g.demo ? "" : faceUrl(g.league, p.id, 96);
+      const tc = p.team === g.home.abbr ? g.home.color : p.team === g.away.abbr ? g.away.color : "";
+      const fi = faceInner(g.demo ? "demo" : g.league, g.sport, p.id, p.name, 96, tc, tennis ? initials(p.name) : p.jersey || initials(p.name));
       const flag = tennis ? [g.home, g.away].find(x => String(x.id) === String(p.id)) : null;
       const mb = muBest[p.id], chip = mb && (mb.tier === "elite" || mb.tier === "great") ? '<span class="muchip ' + mb.tier + '" data-mustat="' + esc(mb.stat) + '" title="' + esc(TIER_NAME[mb.tier] + " matchup") + '">' + esc(mb.short) + '</span>' : '';
-      h += '<div class="player' + (p.dnp ? " dnp" : "") + '" data-p="' + esc(p.id) + '"><div class="num' + (face ? " img" : "") + '">' + esc(tennis ? initials(p.name) : p.jersey || "-") + (face ? '<img src="' + esc(face) + '" alt="" ' + NOIMG + '>' : '') + '</div><div class="grow"><div class="nm">' + (p.on ? '<span class="ondot" title="' + (g.sport === "basketball" ? "On court" : "On the pitch") + '"></span>' : '') + esc(p.name) +
-        (flag ? ' ' + teamLogo(flag, "tennis") : '') + (p.pos ? ' <span class="muted small">' + esc(p.pos) + '</span>' : '') + (face && p.jersey ? '<span class="jn">#' + esc(p.jersey) + '</span>' : '') + (FEAT().screener ? injBadge(p.inj) : '') + chip + (n ? ' <span class="tracked">' + n + ' tracked</span>' : '') + '</div>' +
+      h += '<div class="player' + (p.dnp ? " dnp" : "") + '" data-p="' + esc(p.id) + '"><div class="num"' + (fi.fk ? ' data-fk="' + esc(fi.fk) + '"' : '') + '>' + fi.html + '</div><div class="grow"><div class="nm">' + (p.on ? '<span class="ondot" title="' + (g.sport === "basketball" ? "On court" : "On the pitch") + '"></span>' : '') + esc(p.name) +
+        (flag ? ' ' + teamLogo(flag, "tennis") : '') + (p.pos ? ' <span class="muted small">' + esc(p.pos) + '</span>' : '') + (p.jersey && !tennis ? '<span class="jn">#' + esc(p.jersey) + '</span>' : '') + (FEAT().screener ? injBadge(p.inj) : '') + chip + (n ? ' <span class="tracked">' + n + ' tracked</span>' : '') + '</div>' +
         (p.line ? '<div class="ln">' + esc(p.line) + '</div>' : '') + (p.last ? '<div class="ln">' + esc(p.last) + '</div>' : '') + (ls ? '<div class="ln" style="color:var(--accent2)">' + esc(ls) + '</div>' : '') + '</div><span class="iconbtn" aria-hidden="true">+</span></div>';
     });
     h += '</div>';
@@ -4303,12 +4420,14 @@ function cardInner(x, pr){
   }
   const hits = hasLine ? last10.filter(v => more ? v > line : v < line).length : null;
   const streak = streakOf(games, key, line, more);
-  const face = faceUrl(g.league, p.id, 320);
+  const ph = photoFor(g.league, p.id, 320);
+  if (ph.want) needPhoto(g.league, g.sport, p.id, p.name, true);
+  const tc = p.team === g.home.abbr ? g.home.color : p.team === g.away.abbr ? g.away.color : "";
   // first name small, surname big, with Jr. and the like kept on the surname
   const parts = String(p.name || "").trim().split(/\s+/);
   let cut = parts.length > 1 ? parts.length - 1 : parts.length;
   if (cut > 1 && /^(jr\.?|sr\.?|ii|iii|iv|v)$/i.test(parts[cut])) cut--;
-  const first = parts.slice(0, cut).join(" "), last = parts.slice(cut).join(" ") || first;
+  const one = parts.length < 2, first = one ? "" : parts.slice(0, cut).join(" "), last = one ? parts.join(" ") : parts.slice(cut).join(" ");
   const opp = base && base.opp ? base.opp : "";
   const pos = D && D.pos_name ? D.pos_name : "";
   const posTag = p.pos || (pos ? pos.split(" ")[0] : "");
@@ -4318,8 +4437,12 @@ function cardInner(x, pr){
   if (hits != null && last10.length) foot.push('<div class="pc-g"><b>' + hits + '<small>/' + last10.length + '</small></b><span>last ' + last10.length + '</span></div>');
   else if (last10.length) foot.push('<div class="pc-g"><b>' + fmt(+avg(last10).toFixed(1)) + '</b><span>avg last ' + last10.length + '</span></div>');
   return '<div class="pcard t-' + esc(tier || "none") + '">' +
-    (face ? '<img class="pc-face" src="' + esc(face) + '" alt="" onerror="this.remove()">' : '<span class="pc-mono">' + esc(initials(p.name)) + '</span>') +
-    '<svg class="pc-mark" viewBox="0 0 40 63" aria-hidden="true"><use href="#i-mark"/></svg>' +
+    '<div class="pc-art"' + (ph.fk ? ' data-fk="' + esc(ph.fk) + '"' : '') + '>' +
+      (ph.u && ph.kind === "cut" ? '<img class="pc-face" src="' + esc(ph.u) + '" alt="" onerror="faceErr(this)" data-nm="' + esc(p.name) + '" data-sp="' + esc(g.sport) + '">'
+        : ph.u ? '<figure class="pc-photo"><img src="' + esc(ph.u) + '" alt="" onerror="this.parentNode.remove()"></figure>'
+        : jerseySvg(tc, p.jersey || initials(p.name), g.sport, "pc-jsy")) + '</div>' +
+    (ph.u && ph.kind === "pic" ? (ph.page ? '<a class="pc-cred" href="' + esc(ph.page) + '" target="_blank" rel="noopener">Photo: Wikipedia</a>' : '<span class="pc-cred">Photo: Wikipedia</span>')
+      : '<svg class="pc-mark" viewBox="0 0 40 63" aria-hidden="true"><use href="#i-mark"/></svg>') +
     '<div class="pc-top">' + (posTag ? '<span class="pc-pos">' + esc(posTag) + '</span>' : '') + '<span class="pc-team">' + esc([p.team, p.jersey ? "#" + p.jersey : ""].filter(Boolean).join(" · ")) + '</span>' + flameHtml(streak, "lg") + '</div>' +
     '<div class="pc-name">' + (first ? '<small>' + esc(first) + '</small>' : '') + '<b>' + esc(last) + '</b></div>' +
     '<div class="pc-hero' + (good === true ? " up" : good === false ? " down" : "") + '"><span class="pc-ol"></span><b>' + esc(big) + '</b><span class="pc-lab">' + esc(lab) + (pr.short ? ' <em>' + esc(pr.short) + '</em>' : '') + '</span>' + (sub ? '<span class="pc-sub">' + esc(sub) + '</span>' : '') + '</div>' +
@@ -4697,7 +4820,7 @@ document.addEventListener("visibilitychange", () => { if (!document.hidden){ loa
 (function(){
   function start(){
     var s = document.createElement("script");
-    s.src = "engine.js?v=5.0";
+    s.src = "engine.js?v=5.1";
     s.onload = function(){ try { window.main([]); } catch (e) { window.__engineFailed(); } };
     s.onerror = function(){ window.__engineFailed(); };
     document.body.appendChild(s);
