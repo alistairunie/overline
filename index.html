@@ -849,8 +849,8 @@ nav.tabs button.on:before{content:"";position:absolute;top:3px;left:50%;width:18
 <meta property="og:site_name" content="Overline">
 <meta property="og:title" content="Overline">
 <meta property="og:description" content="Live tracking for your player props, multis and slips. Free, and runs in your browser.">
-<meta property="og:url" content="https://alistairunie.github.io/overline/">
-<meta property="og:image" content="https://alistairunie.github.io/overline/og.png">
+<meta property="og:url" content="https://overlinestats.com/">
+<meta property="og:image" content="https://overlinestats.com/og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
@@ -4820,20 +4820,99 @@ document.addEventListener("visibilitychange", () => { if (!document.hidden){ loa
 (function(){
   function start(){
     var s = document.createElement("script");
-    s.src = "engine.js?v=5.1";
+    s.src = "engine.js?v=5.2";
     s.onload = function(){ try { window.main([]); } catch (e) { window.__engineFailed(); } };
     s.onerror = function(){ window.__engineFailed(); };
     document.body.appendChild(s);
   }
   // One copy of the engine at a time, so two tabs don't save over each other's picks.
-  var forever = function(){ return new Promise(function(){}); };
-  if (navigator.locks && navigator.locks.request) {
-    navigator.locks.request("proptracker-engine", {ifAvailable: true}, function(lock){
-      if (lock) { start(); return forever(); }
-      document.getElementById("othertab").style.display = "flex";
-      navigator.locks.request("proptracker-engine", function(){ document.getElementById("othertab").style.display = "none"; start(); return forever(); });
+  function boot(){
+    var forever = function(){ return new Promise(function(){}); };
+    if (navigator.locks && navigator.locks.request) {
+      navigator.locks.request("proptracker-engine", {ifAvailable: true}, function(lock){
+        if (lock) { start(); return forever(); }
+        document.getElementById("othertab").style.display = "flex";
+        navigator.locks.request("proptracker-engine", function(){ document.getElementById("othertab").style.display = "none"; start(); return forever(); });
+      });
+    } else start();
+  }
+
+  // ---- Moving address ----
+  // The site used to live on OLD. Anyone who opens the old address is sent to SITE with their saved
+  // picks packed into the part of the link after #, which never leaves their browser. The new site
+  // unpacks them before the engine starts, and the engine folds them in.
+  var OLD = "alistairunie.github.io", SITE = "https://overlinestats.com/";
+  var LEAVE = /^(pt:data\..*|photos-v1|pt:moveid|pt:moved-in)$/; // caches refill by themselves
+  var zip = typeof CompressionStream === "function" && typeof DecompressionStream === "function";
+  function b64u(bytes){
+    var s = "";
+    for (var i = 0; i < bytes.length; i += 0x8000) s += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+    return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  }
+  function unb64u(t){
+    t = t.replace(/-/g, "+").replace(/_/g, "/");
+    while (t.length % 4) t += "=";
+    var s = atob(t), b = new Uint8Array(s.length);
+    for (var i = 0; i < s.length; i++) b[i] = s.charCodeAt(i);
+    return b;
+  }
+  function pipe(bytes, stream){ return new Response(new Blob([bytes]).stream().pipeThrough(stream)).arrayBuffer().then(function(a){ return new Uint8Array(a); }); }
+  function newHost(){ try { return new URL(SITE).hostname; } catch (e) { return ""; } }
+  function up(){
+    // the new site answers before anyone is sent there; if it doesn't, the old one carries on as normal
+    var t = new Promise(function(res){ setTimeout(function(){ res(false); }, 6000); });
+    var f = fetch(SITE + "favicon.svg?up=" + Date.now(), {mode: "no-cors", cache: "no-store"}).then(function(){ return true; }, function(){ return false; });
+    return Promise.race([f, t]);
+  }
+  function leave(){
+    var id = localStorage.getItem("pt:moveid");
+    if (!id) { id = Date.now().toString(36) + Math.random().toString(36).slice(2, 10); localStorage.setItem("pt:moveid", id); }
+    var keep = {}, n = 0;
+    for (var i = 0; i < localStorage.length; i++) {
+      var k = localStorage.key(i);
+      if (!LEAVE.test(k)) { keep[k] = localStorage.getItem(k); n++; }
+    }
+    var to = SITE + location.search;
+    if (!n) { location.replace(to); return Promise.resolve(); }
+    var raw = new TextEncoder().encode(JSON.stringify({v: 1, id: id, keep: keep}));
+    return (zip ? pipe(raw, new CompressionStream("gzip")) : Promise.resolve(raw)).then(function(b){
+      location.replace(to + (zip ? "#move=" : "#movej=") + b64u(b));
     });
-  } else start();
+  }
+  function arrive(){
+    var m = /^#move(j?)=([A-Za-z0-9_-]+)$/.exec(location.hash);
+    if (!m) return Promise.resolve();
+    // take the packed data out of the address bar and history straight away
+    try { history.replaceState(null, "", location.pathname + location.search); } catch (e) {}
+    var bytes = unb64u(m[2]);
+    var text = m[1] ? Promise.resolve(bytes) : pipe(bytes, new DecompressionStream("gzip"));
+    return text.then(function(b){
+      var p = JSON.parse(new TextDecoder().decode(b));
+      if (!p || !p.id || !p.keep) return;
+      var seen = [];
+      try { seen = JSON.parse(localStorage.getItem("pt:moved-in") || "[]") || []; } catch (e) {}
+      if (seen.indexOf(p.id) >= 0) return; // came across already; the old copy is out of date now
+      for (var k in p.keep) {
+        if (!Object.prototype.hasOwnProperty.call(p.keep, k) || LEAVE.test(k)) continue;
+        if (k === "pt:data") localStorage.setItem("pt:data.incoming", p.keep[k]);
+        else if (localStorage.getItem(k) == null) localStorage.setItem(k, p.keep[k]);
+      }
+      seen.push(p.id);
+      localStorage.setItem("pt:moved-in", JSON.stringify(seen.slice(-20)));
+      window.__movedIn = true;
+    });
+  }
+  var nh = newHost();
+  if (location.hostname === OLD && nh && nh !== OLD) {
+    up().then(function(ok){ if (ok) return leave(); boot(); }).catch(boot);
+  } else {
+    arrive().catch(function(){}).then(function(){
+      boot();
+      if (window.__movedIn) setTimeout(function(){
+        if (typeof window.toast === "function") window.toast({kind: "event", title: "Your picks came across", body: "Overline has moved here. If you had the old address on your home screen, add this one instead."});
+      }, 2500);
+    });
+  }
 })();
 </script>
 </body>

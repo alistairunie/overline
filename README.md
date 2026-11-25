@@ -2,9 +2,11 @@
 
 Live tracking for your player props, multis and slips. It's free and runs in your browser, so there's nothing to install.
 
-**[Open Overline](https://alistairunie.github.io/overline/)**
+**[Open Overline](https://overlinestats.com/)**
 
 Overline was called ClutchUp up to version 4.10. Your picks, slips and settings carry over.
+
+Overline moved to overlinestats.com in version 5.2. The old github.io address sends you here and brings your picks, slips, history and settings with you.
 
 ## What it does
 
