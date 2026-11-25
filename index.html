@@ -728,6 +728,7 @@ nav.tabs button.on:before{content:"";position:absolute;top:3px;left:50%;width:18
 .pc-g + .pc-g{border-left:1px solid var(--pc-rule,rgba(255,255,255,.2))}
 .pc-g b{display:block;font:800 25px/1 var(--num);font-variant-numeric:tabular-nums}
 .pc-g b small{font-size:15px;opacity:.7}
+.pc-g span.pc-win{font-size:10px;opacity:.6;margin-top:1px}
 .pc-g span{display:block;font:650 11px/1.25 var(--ui);opacity:.85;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pc-inj{display:inline-block;margin-top:10px;padding:6px 10px;border-radius:10px;background:rgba(9,15,28,.4);color:#ffd0d7;font:700 12.5px/1.3 var(--ui)}
 .stabs{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:14px -18px 0;padding:2px 18px 4px}
@@ -853,6 +854,12 @@ nav.tabs button.on:before{content:"";position:absolute;top:3px;left:50%;width:18
 .acct a{color:var(--accent2);font-weight:650}
 .acage{display:flex;align-items:center;gap:10px;margin-top:12px;font-size:14.5px;font-weight:600}
 .acage input{width:20px;height:20px;accent-color:var(--accent);margin:0}
+
+/* 6.1 leg prices on the screenshot review */
+.pxbox{display:inline-flex;align-items:center;gap:2px;padding:0 8px;border-radius:9px;background:var(--bg);border:1px solid var(--line)}
+.pxbox input{width:58px;padding:7px 0;border:0;background:transparent;text-align:center;font-weight:700;color:var(--text)}
+.pxbox input::placeholder{font-weight:600}
+.fprops button{font-weight:650}
 </style>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -948,7 +955,7 @@ S.picksSeg = ["picks","slips","results"].includes(LS.get("picksSeg", "picks")) ?
 S.playsSeg = ["tips","matchups","multi","check","ladder","screener","pickem","perfect"].includes(LS.get("playsSeg", "tips")) ? LS.get("playsSeg", "tips") : "tips";
 S.muQ = Object.assign({league:"", prop:"", pos:"", view:"spots"}, LS.get("muQ", {}));
 S.muView = LS.get("muView", "today");
-S.feedQ = Object.assign({sport:"", sort:"picks", kind:"", min:1.3}, LS.get("feedQ", {}));
+S.feedQ = Object.assign({sport:"", sort:"picks", kind:"", min:1.3, prop:""}, LS.get("feedQ", {}));
 S.mQ = Object.assign({legs:3, target:3, sport:""}, LS.get("mQ", {}));
 S.scoreQ = Object.assign({days:30, sport:"all"}, LS.get("scoreQ", {}));
 S.pfK = [5, 10, 15].includes(LS.get("pfK", 10)) ? LS.get("pfK", 10) : 10;
@@ -2702,7 +2709,7 @@ function feedList(){
     const k = [t.game_id, t.athlete_id, t.stat, t.side, t.line].join("|");
     if (seen[k]) return;
     seen[k] = 1;
-    if ((!q.sport || t.sport === q.sport) && (!q.kind || t.kind_tip === q.kind)) out.push(t);
+    if ((!q.sport || t.sport === q.sport) && (!q.kind || t.kind_tip === q.kind) && (!q.prop || t.market === q.prop)) out.push(t);
   });
   const edge = t => t.price ? t.p * t.price - 1 : -9;
   // best picks: the chance, nudged by the value at the price (capped, so a long shot's big edge can't run away with it)
@@ -2717,6 +2724,14 @@ function feedList(){
     per[t.game_id] = (per[t.game_id] || 0) + 1;
     return per[t.game_id] <= 3;
   });
+}
+// The kinds of prop in the tips showing (after the sport and kind filters), most common first.
+function feedProps(){
+  const q = S.feedQ, n = {};
+  ((S.feed && S.feed.tips) || []).forEach(t => {
+    if (t.market && (!q.sport || t.sport === q.sport) && (!q.kind || t.kind_tip === q.kind)) n[t.market] = (n[t.market] || 0) + 1;
+  });
+  return Object.keys(n).sort((a, b) => n[b] - n[a] || a.localeCompare(b));
 }
 function feedSports(){
   const out = [];
@@ -2785,6 +2800,10 @@ function renderFeed(el){
   if (q.sport && !sports.includes(q.sport) && !F.building) q.sport = "";
   if (sports.length > 1) h += '<div class="fchips"><button data-fs="" class="' + (!q.sport ? "on" : "") + '">All sports</button>' +
     sports.map(sp => '<button data-fs="' + esc(sp) + '" class="' + (q.sport === sp ? "on" : "") + '">' + esc(SPORT_NAME(sp)) + '</button>').join("") + '</div>';
+  const props = feedProps();
+  if (q.prop && !props.includes(q.prop) && !F.building) q.prop = "";
+  if (props.length > 1 || q.prop) h += '<div class="fchips fprops"><button data-fp="" class="' + (!q.prop ? "on" : "") + '">All props</button>' +
+    props.map(m => '<button data-fp="' + esc(m) + '" class="' + (q.prop === m ? "on" : "") + '">' + esc(m) + '</button>').join("") + '</div>';
   h += '<div class="filters"><select id="fd_sort">' + fopt("picks", "Best picks", q.sort) + fopt("chance", "Best chance", q.sort) + fopt("value", "Best value", q.sort) + fopt("soon", "Starting soonest", q.sort) + '</select>' +
     '<select id="fd_min" aria-label="Lowest price">' + [[0, "Any price"], [1.3, "$1.30+"], [1.5, "$1.50+"], [2, "$2.00+"]].map(([v, l]) => fopt(v, l, +q.min)).join("") + '</select>' +
     '<select id="fd_kind">' + fopt("", "All tips", q.kind) + fopt("best", "Best bets", q.kind) + fopt("call", "The calls", q.kind) + fopt("value", "Value picks", q.kind) + '</select></div>';
@@ -2796,12 +2815,13 @@ function renderFeed(el){
   if (show.length) h += '<div class="list">' + show.map(feedRow).join("") + '</div>';
   if (all.length > show.length) h += '<button class="showall" id="fdmore">Show ' + Math.min(30, all.length - show.length) + ' more</button>';
   if (!all.length && !F.building) h += '<div class="empty"><b>' + (F.total ? "Nothing stands out yet" : "No games coming up") + '</b>' +
-    (F.total ? (q.sport || q.kind || q.min ? "Try all sports, any price, or every kind of tip." : "More prices go up closer to game time, so check back later.") : "Turn on more leagues in Settings, or check back later.") + '</div>';
+    (F.total ? (q.sport || q.kind || q.min || q.prop ? "Try all sports, all props, any price, or every kind of tip." : "More prices go up closer to game time, so check back later.") : "Turn on more leagues in Settings, or check back later.") + '</div>';
   if (all.length) h += '<div class="card small muted" style="margin-top:12px">Up to three tips a game here. Tap one to see the rest of that game. ' + esc(pricesNote()) + ' Chances are estimates, not promises.</div>';
   el.innerHTML = h;
   bindSegs(el, "ps", setPlaysSeg);
   const save = () => { LS.set("feedQ", S.feedQ); S.feedShow = 30; renderLadder(); };
   el.querySelectorAll("[data-fs]").forEach(b => b.onclick = () => { S.feedQ.sport = b.dataset.fs; save(); });
+  el.querySelectorAll("[data-fp]").forEach(b => b.onclick = () => { S.feedQ.prop = b.dataset.fp; save(); });
   const so = $("fd_sort"); if (so) so.onchange = () => { S.feedQ.sort = so.value; save(); };
   const ki = $("fd_kind"); if (ki) ki.onchange = () => { S.feedQ.kind = ki.value; save(); };
   const mi = $("fd_min"); if (mi) mi.onchange = () => { S.feedQ.min = +mi.value; save(); };
@@ -3499,7 +3519,11 @@ function renderCheck(el){
     h += R.legs.map(chkLegCard).join("");
     h += chkFixHtml(j);
     const tracked = j.fromSlip;
-    h += '<div class="row" style="gap:8px;margin-top:10px">' + (tracked ? '' : '<button class="btn primary grow" id="chktrack">Track this bet</button>') + '<button class="btn grow" id="chknew">Check another</button></div>';
+    // no stake on the screenshot: ask for it, so the bet goes in as a slip with its price
+    if (!tracked && j.askStake) h += '<div class="card" style="margin-top:10px"><b>What did you put on it?</b><div class="small muted" style="margin-top:2px">Then it\'s tracked as a slip at ' + (parseFloat(j.price) > 1 ? money(parseFloat(j.price)) : "your price") + ' and the result gets logged.</div>' +
+      '<div class="row" style="gap:8px;margin-top:10px"><div class="linebox grow"><span class="muted">$</span><input id="chkstake" type="number" inputmode="decimal" step="1" min="0.5" placeholder="Stake" style="font-size:18px;padding:6px"></div><button class="btn primary" id="chkstakego">Track it</button></div>' +
+      '<div class="err" id="chkerr" style="margin-top:6px"></div><button class="linkbtn" id="chkpicksonly" style="margin-top:8px;padding:0">Just track the picks</button></div>';
+    h += '<div class="row" style="gap:8px;margin-top:10px">' + (tracked || j.askStake ? '' : '<button class="btn primary grow" id="chktrack">Track this bet</button>') + '<button class="btn grow" id="chknew">Check another</button></div>';
     h += '<div class="small muted" style="margin:10px 2px 0">Value compares our chance with the price: +10% means you\'d get back $1.10 for every $1 over the long run. Chances are estimates, not promises.</div>';
   }
   el.innerHTML = h;
@@ -3574,19 +3598,36 @@ function renderCheck(el){
       if (pi){ pi.value = j.price.toFixed(2); pi.oninput(true); }
     }
   });
-  on("chktrack", async () => {
+  const track = async (b, slip) => {
     const legs = j.legs.filter(chkReady);
-    const b = $("chktrack"); b.disabled = true; b.textContent = "Adding...";
+    const was = b.textContent;
+    b.disabled = true; b.textContent = "Adding...";
     try{
-      const stake = parseFloat(j.stake), price = parseFloat(j.price);
+      const stake = slip ? parseFloat(j.stake) : 0, price = parseFloat(j.price);
       const r = await api("/api/scan/add", {legs:legs.map(l => ({game_id:l.game_id, athlete_id:l.athlete_id, name:l.name, team:l.team, stat:l.stat, side:l.side, line:l.line, odds:l.odds})),
         slip:stake > 0, stake:stake > 0 ? stake : 0, price:price >= 1.01 ? price : 0, bookie:j.bookie || "", name:j.bookie ? j.bookie + " slip" : ""});
       await loadState();
       j.fromSlip = r.slip ? r.slip.id : "picks";
-      toast({kind:"event", title:"Tracking " + r.picks + (r.picks === 1 ? " pick" : " picks") + (r.slip ? " on a slip" : ""), body:r.slip ? "" : "Add your stake on the Slips tab to follow it as a bet"});
+      j.askStake = false;
+      toast({kind:"event", title:"Tracking " + r.picks + (r.picks === 1 ? " pick" : " picks") + (r.slip ? " on a slip @ " + money(r.slip.price) : ""), body:(r.problems || []).length ? "Skipped: " + r.problems.join("; ") : r.slip ? "" : "Add your stake on the Slips tab to follow it as a bet"});
       renderLadder();
-    }catch(e){ b.disabled = false; b.textContent = "Try again"; toast({kind:"bust", title:"Couldn't add it", body:e.message}); }
+    }catch(e){
+      b.disabled = false; b.textContent = was;
+      const er = $("chkerr");
+      if (er) er.textContent = e.message; else toast({kind:"bust", title:"Couldn't add it", body:e.message});
+    }
+  };
+  on("chktrack", () => {
+    if (!(parseFloat(j.stake) > 0)){ j.askStake = true; renderLadder(); const i = $("chkstake"); if (i) i.focus(); return; }
+    track($("chktrack"), true);
   });
+  on("chkstakego", () => {
+    const v = parseFloat($("chkstake").value);
+    if (!(v > 0)){ $("chkerr").textContent = "Put in your stake."; return; }
+    j.stake = v;
+    track($("chkstakego"), true);
+  });
+  on("chkpicksonly", () => track($("chkpicksonly"), false));
 }
 function chkSummary(R, price, v){
   if (R.p == null) return R.summary || "Couldn't rate this one.";
@@ -3636,9 +3677,19 @@ function teammates(x){
   const t = S.game.teams.find(tm => tm.players.some(p => p.id === x.p.id));
   if (!t) return [];
   const L = (gameLines() || {}).players || {};
-  // Teammates ruled out tonight come first: "without him" matters most when he's missing.
-  const weight = p => (/^out/i.test(p.inj || "") ? 100000 : 0) + ((p.stats && +p.stats.MIN) || 0) * 100 + (L[p.id] ? Object.keys(L[p.id]).length : 0) + (p.starter ? 50 : 0);
-  return t.players.filter(p => p.id !== x.p.id && !p.dnp).sort((a, b) => weight(b) - weight(a) || a.name.localeCompare(b.name)).slice(0, 14);
+  // Teammates who aren't playing come first, because "without him" matters most when he's missing:
+  // anyone ruled out, then regulars left out of the squad, then whoever plays the most tonight.
+  const here = {};
+  t.players.forEach(p => { here[p.id] = 1; });
+  const away = (t.missing || []).filter(m => m.id !== x.p.id && !here[m.id]).map(m => Object.assign({absent: true}, m));
+  const weight = p => (/^out/i.test(p.inj || "") ? 100000 : 0) + (p.absent ? 50000 : 0) + ((p.stats && +p.stats.MIN) || 0) * 100 + (L[p.id] ? Object.keys(L[p.id]).length : 0) + (p.starter ? 50 : 0);
+  return t.players.filter(p => p.id !== x.p.id && !p.dnp).concat(away)
+    .sort((a, b) => weight(b) - weight(a) || (a.absent && b.absent ? 0 : a.name.localeCompare(b.name))).slice(0, 30);
+}
+function mateTag(m){
+  if (/^out/i.test(m.inj || "")) return " (out)";
+  if (m.absent) return /^(Out|)$/.test(m.note || "") ? " (not playing)" : " (not playing, " + m.note.charAt(0).toLowerCase() + m.note.slice(1) + ")";
+  return "";
 }
 function formKey(x){ return x.g.id + "|" + x.p.id + (x.ff === "without" && x.wo ? "|" + x.wo : ""); }
 function formFilters(x, f){
@@ -3648,7 +3699,7 @@ function formFilters(x, f){
   if (f.opp) list.push(["opp", "vs " + f.opp]);
   let h = '<div class="fchips">' + list.map(([k, l]) => '<button data-ff="' + k + '" class="' + ((x.ff || "all") === k ? "on" : "") + '">' + esc(l) + '</button>').join("") +
     (mates.length ? '<button data-ff="without" class="' + (x.ff === "without" ? "on" : "") + '">Without a teammate</button>' : '') + '</div>';
-  if (x.ff === "without" && mates.length) h += '<select id="ffwo" style="width:100%;margin-bottom:8px"><option value="">Which teammate?</option>' + mates.map(m => '<option value="' + esc(m.id) + '"' + (x.wo === m.id ? " selected" : "") + '>' + esc(m.name) + (/^out/i.test(m.inj || "") ? " (out tonight)" : "") + '</option>').join("") + '</select>';
+  if (x.ff === "without" && mates.length) h += '<select id="ffwo" style="width:100%;margin-bottom:8px"><option value="">Which teammate?</option>' + mates.map(m => '<option value="' + esc(m.id) + '"' + (x.wo === m.id ? " selected" : "") + '>' + esc(m.name) + esc(mateTag(m)) + '</option>').join("") + '</select>';
   return h;
 }
 function marketNote(m, pr){
@@ -3856,7 +3907,8 @@ async function scanImages(srcs){
     job.res = res;
     job.legs = res.legs.map(l => Object.assign({}, l, {on: !l.tracked && !!l.stat && l.line != null}));
     job.stake = res.stake != null ? res.stake : "";
-    job.price = res.price != null ? res.price : (res.legs.length && res.legs.every(l => l.odds) ? +res.legs.reduce((a, l) => a * l.odds, 1).toFixed(2) : "");
+    job.price = res.price != null ? res.price : (res.kind !== "sgm" && res.legs.length && res.legs.every(l => l.odds) ? +res.legs.reduce((a, l) => a * l.odds, 1).toFixed(2) : "");
+    job.priceAuto = res.price == null;
     job.slip = res.stake != null || res.legs.length > 1;
     job.phase = "review";
     renderScan();
@@ -3882,12 +3934,14 @@ function scanLeg(l, i){
   const who = l.athlete_id === "match" ? (win ? esc(l.stat_name || l.name) : esc(l.name)) : esc(l.name) + ' <span class="muted small">' + esc(l.team) + '</span>';
   let h = '<div class="leg" style="display:flex;gap:10px;align-items:flex-start;padding:10px 0"><button class="sel' + (l.on ? " on" : "") + '" data-son="' + i + '" style="position:static;flex:none;margin-top:2px">' + (l.on ? "&#10003;" : "") + '</button><div class="grow" style="min-width:0">' +
     '<div style="font-weight:700">' + who + (l.tracked ? ' <span class="badge">Tracking</span>' : '') + '</div>';
+  const px = '<span class="pxbox"><span class="muted">$</span><input data-spx="' + i + '" type="number" inputmode="decimal" step="0.01" min="1.01" value="' + (l.odds ? esc(l.odds) : "") + '" placeholder="Price" aria-label="Price for this leg"></span>';
+  if (win) h += '<div class="row" style="gap:6px;margin-top:6px">' + px + '</div>';
   if (!win){
     h += '<div class="row" style="gap:6px;margin-top:6px;flex-wrap:wrap"><select data-sst="' + i + '" style="max-width:52%">' + scanStatOptions(l) + '</select>' +
       '<div class="seg" style="grid-template-columns:auto auto;padding:2px"><button class="more' + (l.side === "more" ? " on" : "") + '" data-ssd="' + i + ':more" style="padding:6px 10px">' + (yes ? "Yes" : "More") + '</button><button class="less' + (l.side === "less" ? " on" : "") + '" data-ssd="' + i + ':less" style="padding:6px 10px">' + (yes ? "No" : "Less") + '</button></div>' +
-      (yes ? '' : '<input data-sln="' + i + '" type="number" inputmode="decimal" step="0.5" min="0" value="' + (l.line == null ? "" : l.line) + '" placeholder="Line" style="width:72px;text-align:center;padding:7px;border-radius:9px;background:var(--bg);border:1px solid var(--line);font-weight:700">') + '</div>';
+      (yes ? '' : '<input data-sln="' + i + '" type="number" inputmode="decimal" step="0.5" min="0" value="' + (l.line == null ? "" : l.line) + '" placeholder="Line" style="width:72px;text-align:center;padding:7px;border-radius:9px;background:var(--bg);border:1px solid var(--line);font-weight:700">') + px + '</div>';
   }
-  h += '<div class="small muted" style="margin-top:5px">' + esc(l.matchup) + ' · ' + esc(startText(l.start)) + ' · ' + esc(l.league_short) + (l.odds ? ' · <span class="price" style="color:var(--text)">' + money(l.odds) + '</span>' : '') + '</div>';
+  h += '<div class="small muted" style="margin-top:5px">' + esc(l.matchup) + ' · ' + esc(startText(l.start)) + ' · ' + esc(l.league_short) + '</div>';
   if ((l.alts || []).length) h += '<select data-salt="' + i + '" style="margin-top:6px;max-width:100%"><option value="">It\'s ' + esc(l.name) + '</option>' + l.alts.map((a, k) => '<option value="' + k + '">It\'s ' + esc(a.name) + ' (' + esc(a.team) + ', ' + esc(a.matchup) + ')</option>').join("") + '</select>';
   const issues = (l.issues || []).filter(x => x !== "Could be another player" || (l.alts || []).length);
   if (issues.length) h += '<div class="small" style="color:var(--amber);margin-top:4px">' + esc(issues.join(" · ")) + '</div>';
@@ -3945,8 +3999,19 @@ function renderScan(){
   on("scanslip", () => { j.slip = !j.slip; renderScan(); });
   const ret = () => { const r = $("scanret"); if (!r) return; const s = parseFloat(j.stake), p = parseFloat(j.price); r.textContent = s > 0 && p > 1 ? "Returns " + money(s * p) + " if it lands" : (s > 0 ? "Put in the price on your slip" : ""); };
   const st = $("scanstake"); if (st) st.oninput = () => { j.stake = st.value; ret(); };
-  const pr = $("scanprice"); if (pr) pr.oninput = () => { j.price = pr.value; ret(); };
+  const pr = $("scanprice"); if (pr) pr.oninput = () => { j.price = pr.value; j.priceAuto = !pr.value; ret(); };
   ret();
+  // a leg's price: while the bet's price is the legs multiplied (a multi across games), it follows them
+  el.querySelectorAll("[data-spx]").forEach(inp => inp.oninput = () => {
+    const l = j.legs[+inp.dataset.spx], v = parseFloat(inp.value);
+    l.odds = v > 1 ? v : null;
+    if (j.priceAuto && j.res.kind !== "sgm"){
+      const ready = scanReady();
+      j.price = ready.length && ready.every(x => x.odds) ? +ready.reduce((a, x) => a * x.odds, 1).toFixed(2) : "";
+      const p2 = $("scanprice"); if (p2) p2.value = j.price;
+      ret();
+    }
+  });
   el.querySelectorAll("[data-son]").forEach(b => b.onclick = () => { const l = j.legs[+b.dataset.son]; l.on = !l.on; l.touched = true; renderScan(); });
   el.querySelectorAll("[data-sst]").forEach(s => s.onchange = () => {
     const l = j.legs[+s.dataset.sst]; l.stat = s.value;
@@ -3976,6 +4041,10 @@ function renderScan(){
     if (!legs.length) return;
     const stake = parseFloat(j.stake), price = parseFloat(j.price);
     if (j.slip && !(stake > 0)) { $("sheeterr").textContent = "Put in your stake, or turn off Track it as a slip."; return; }
+    if (j.slip && !(price >= 1.01) && (j.res.kind === "sgm" || !legs.every(l => l.odds))){
+      $("sheeterr").textContent = j.res.kind === "sgm" ? "Put in the price for the whole bet. It's on your slip, next to the stake." : "Put in the price for the whole bet, or a price for every leg.";
+      return;
+    }
     $("scanadd").disabled = true; $("scanadd").textContent = "Adding...";
     try{
       const r = await api("/api/scan/add", {legs:legs.map(l => ({game_id:l.game_id, athlete_id:l.athlete_id, name:l.name, team:l.team, stat:l.stat, side:l.side, line:l.line, odds:l.odds})),
@@ -3984,7 +4053,7 @@ function renderScan(){
       S.scan = null; closeSheet();
       await loadState();
       if (madeSlip) setPicksSeg("slips"); else { S.picksSeg = "picks"; LS.set("picksSeg", "picks"); setTab("picks"); }
-      toast({kind:"event", title:"Tracking " + r.picks + (r.picks === 1 ? " pick" : " picks") + (madeSlip ? " on a slip" : ""), body:(r.problems || []).length ? "Skipped: " + r.problems.join("; ") : (madeSlip ? "Returns " + money(r.slip.stake * r.slip.price) + " if it lands" : "You'll get alerts as they move")});
+      toast({kind:"event", title:"Tracking " + r.picks + (r.picks === 1 ? " pick" : " picks") + (madeSlip ? " on a slip @ " + money(r.slip.price) : ""), body:(r.problems || []).length ? "Skipped: " + r.problems.join("; ") : (madeSlip ? "Returns " + money(r.slip.stake * r.slip.price) + " if it lands" : "You'll get alerts as they move")});
     }catch(e){ $("sheeterr").textContent = e.message; const b = $("scanadd"); if (b){ b.disabled = false; b.textContent = "Try again"; } }
   });
 }
@@ -4566,7 +4635,8 @@ function cardInner(x, pr){
   const posTag = p.pos || (pos ? pos.split(" ")[0] : "");
   const foot = [];
   if (m) foot.push('<div class="pc-g"><b>' + esc(GRADE[tier] || "C") + '</b><span>' + esc((opp ? "vs " + opp : "Matchup") + " · " + (TIER_NAME[tier] || "Even")) + '</span></div>');
-  if (m && m.m && m.m.rank) foot.push('<div class="pc-g"><b>#' + esc(m.m.rank) + '</b><span>of ' + esc(m.m.of) + ' ' + esc(String(pos || "players").toLowerCase()) + '</span></div>');
+  if (m && m.m && m.m.rank) foot.push('<div class="pc-g"><b>#' + esc(m.m.rank) + '</b><span>of ' + esc(m.m.of) + ' ' + esc(String(pos || "players").toLowerCase()) + '</span>' +
+    (D && D.span ? '<span class="pc-win">' + esc(String(D.span).replace(/weeks?$/, w => w === "week" ? "wk" : "wks")) + '</span>' : '') + '</div>');
   if (hits != null && last10.length) foot.push('<div class="pc-g"><b>' + hits + '<small>/' + last10.length + '</small></b><span>last ' + last10.length + '</span></div>');
   else if (last10.length) foot.push('<div class="pc-g"><b>' + fmt(+avg(last10).toFixed(1)) + '</b><span>avg last ' + last10.length + '</span></div>');
   return '<div class="pcard t-' + esc(tier || "none") + '">' +
@@ -4714,6 +4784,12 @@ function last5Inner(x){
 }
 
 // What tonight's side gives up at his position, and where he ranks, as bars.
+// The stretch the matchup numbers come from: "From the last 3 weeks of games (since 4 Nov), not the whole season."
+function muWindow(D){
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(D && D.since || "");
+  const since = m ? new Date(+m[1], +m[2] - 1, +m[3]).toLocaleDateString("en-AU", {day:"numeric", month:"short"}) : "";
+  return "From the " + (D && D.span || "last few weeks") + " of games" + (since ? " (since " + since + ")" : "") + ", not the whole season.";
+}
 function matchupInner(x, pr){
   const base = sheetForm(x), D = base && base.dvp;
   if (!D || !FEAT().screener) return "";
@@ -4725,6 +4801,7 @@ function matchupInner(x, pr){
   let h = '<div class="mgrade t-' + esc(tier || "even") + '"><b>' + esc(GRADE[tier] || "C") + '</b><div><div class="t">' + esc((TIER_NAME[tier] || "Even") + " matchup" + (x.side === "less" ? " for the under" : "")) + '</div><div class="small muted">' + esc(m.text) + '.</div></div></div>';
   if (d.rank && d.of) h += '<div class="mrow"><div class="ml"><b>' + esc(d.team || base.opp || "") + '</b> give up ' + esc(fmt(d.allowed)) + ' ' + esc(pr.short || "") + ' to ' + esc(pos) + '</div><div class="mbar"><i style="width:' + bar(d.rank, d.of) + '%"></i></div><div class="mr">' + esc(ordn(d.rank <= (d.of + 1) / 2 ? d.rank : d.of - d.rank + 1)) + (d.rank <= (d.of + 1) / 2 ? " most" : " fewest") + '<small>of ' + esc(d.of) + ' · avg ' + esc(fmt(d.avg)) + '</small></div></div>';
   if (me.rank && me.of) h += '<div class="mrow"><div class="ml"><b>' + esc(shortName(x.p)) + '</b> averages ' + esc(fmt(me.avg)) + '</div><div class="mbar me"><i style="width:' + bar(me.rank, me.of) + '%"></i></div><div class="mr">#' + esc(me.rank) + '<small>of ' + esc(me.of) + ' ' + esc(pos) + '</small></div></div>';
+  if ((d.rank && d.of) || (me.rank && me.of)) h += '<div class="small muted" style="margin-top:6px">' + esc(muWindow(D)) + '</div>';
   const pj = muProj(m, x.line);
   if (pj) h += '<div class="small" style="margin-top:8px">' + esc(pj) + '.</div>';
   return h;
@@ -4759,7 +4836,7 @@ function hitTiles(base, pr, line, more, hasLine){
   const ts = [tile(all.slice(0, 5), "Last 5"), tile(all.slice(0, 10), "Last 10")];
   if (base.season && all.length > 10) ts.push(tile(all, "Season"));
   if (base.opp) ts.push(tile(vs, "v " + base.opp + (base.vs_prev && base.vs_prev.length ? "*" : "")));
-  const note = base.vs_prev && base.vs_prev.length ? '<div class="small muted" style="margin:-4px 0 8px">*v ' + esc(base.opp) + ' takes in last season' + (base.prev_season ? " (" + esc(base.prev_season) + ")" : "") + ' too.</div>' : '';
+  const note = base.vs_prev && base.vs_prev.length ? '<div class="small muted" style="margin:-4px 0 8px">*v ' + esc(base.opp) + ' ' + esc(base.prev_note || ("takes in last season" + (base.prev_season ? " (" + base.prev_season + ")" : "") + " too")) + '.</div>' : '';
   return '<div class="hrt' + (ts.length < 4 ? " n" + ts.length : "") + '">' + ts.join("") + '</div>' + note;
 }
 // The games as bars against the line, each with its number and who it was against (or the date, when it's one opponent).
@@ -4953,7 +5030,7 @@ document.addEventListener("visibilitychange", () => { if (!document.hidden){ loa
 (function(){
   function start(){
     var s = document.createElement("script");
-    s.src = "engine.js?v=6.0";
+    s.src = "engine.js?v=6.1";
     s.onload = function(){ try { window.main([]); } catch (e) { window.__engineFailed(); } };
     s.onerror = function(){ window.__engineFailed(); };
     document.body.appendChild(s);
