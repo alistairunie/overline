@@ -10,6 +10,7 @@ Overline moved to overlinestats.com in version 5.2. The old github.io address se
 
 ## What it does
 
+- **Keeps your picks in your account.** Sign in with your email (no password, just a code we email you) and your picks, slips, results, ladder and most settings are saved to your account, so they're on every phone and browser you sign in on. Your Discord webhook and price keys stay on your device. See [Accounts and privacy](https://overlinestats.com/privacy.html).
 - **Tracks props live.** Pick a player, a stat and your line, then watch it count up as the game goes. You can see how far off the line they are, the pace they're on and their chance of getting there.
 - **Sends alerts.** You get a notification when a pick lands or busts, or when a multi is one leg away. Once a pick is over its line it goes quiet. Quiet hours let you sleep through the overnight games: only results notify, and everything else waits on the Alerts tab.
 - **Sub on, play on.** If your soccer player comes off, the bet moves to the player who replaced him and both their numbers count, the same as bet365's Sub On Play On. It moves once, and only for bets on More. You can turn it off in Settings or on any pick.

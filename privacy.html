@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Accounts and privacy · Overline</title>
+<meta name="description" content="What an Overline account keeps, who can see it and how to delete it.">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#090f1c">
+<style>
+@font-face{font-family:"Big Shoulders";src:url(fonts/big-shoulders-display-latin-800-normal.woff2) format("woff2");font-weight:800;font-display:swap}
+@font-face{font-family:"Figtree";src:url(fonts/figtree-latin-wght-normal.woff2) format("woff2");font-weight:300 900;font-display:swap}
+:root{--bg:#090f1c;--card:#121b2e;--text:#f5f8fd;--muted:#a4b0c6;--line:#22304d;--accent:#ff7a1a}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.6 Figtree,system-ui,sans-serif;-webkit-text-size-adjust:100%}
+main{max-width:640px;margin:0 auto;padding:28px 20px 56px}
+a{color:var(--accent)}
+.top{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--text);font:800 26px/1 "Big Shoulders",sans-serif;letter-spacing:.01em}
+.top img{width:30px;height:30px}
+h1{font:800 40px/1.05 "Big Shoulders",sans-serif;margin:34px 0 10px;letter-spacing:.005em}
+h2{font-size:18px;margin:30px 0 8px}
+h2:before{content:"";display:block;width:22px;height:4px;border-radius:2px;background:var(--accent);margin-bottom:12px}
+p,li{color:var(--muted)}
+p b,li b{color:var(--text)}
+ul{padding-left:20px;margin:8px 0}
+li{margin:4px 0}
+.lead{font-size:18px;color:var(--text)}
+.help{margin-top:34px;padding:16px 18px;border-radius:16px;background:var(--card);border:1px solid var(--line)}
+.help p{margin:0}
+.small{font-size:13px;margin-top:30px}
+</style>
+</head>
+<body>
+<main>
+<a class="top" href="./"><img src="favicon.svg" alt="">Overline</a>
+<h1>Accounts and privacy</h1>
+<p class="lead">Overline is free, and you don't need an account to use it. An account keeps your picks safe and lets you use them on more than one phone or browser.</p>
+
+<h2>What your account keeps</h2>
+<ul>
+<li><b>Your email address</b>, so we can send you a code when you sign in.</li>
+<li><b>Your saved picks, slips, results and ladder.</b></li>
+<li><b>Your Overline settings</b>, apart from your Discord webhook and any price service keys. Those stay on your device.</li>
+<li><b>When it was last saved</b>, and whether that was from the Android app or the website.</li>
+</ul>
+
+<h2>Who can see it</h2>
+<p>Only you. Nothing in your account is public unless you choose to share it.</p>
+
+<h2>What we don't do</h2>
+<p>We don't sell or share your details, and we don't send marketing emails. The only emails you'll get from Overline are sign-in codes you asked for.</p>
+
+<h2>Where it's kept</h2>
+<p>Accounts are stored with Supabase, the database service Overline uses. Sign-in codes are emailed through Resend.</p>
+
+<h2>Deleting your account</h2>
+<p>In Overline, go to <b>Settings</b> and tap <b>Delete my account</b>. Your account and everything saved in it are deleted straight away. The picks already on your device stay there until you remove them.</p>
+
+<h2>Age</h2>
+<p>Overline is for people 18 and over.</p>
+
+<h2>Questions</h2>
+<p>Get in touch through the Overline Discord.</p>
+
+<div class="help">
+<p><b>Betting causing you trouble?</b> Free, confidential help is there any time, day or night. Call the Gambling Helpline on <a href="tel:1800858858">1800 858 858</a> or visit <a href="https://www.gamblinghelponline.org.au" rel="noopener">gamblinghelponline.org.au</a>.</p>
+</div>
+
+<p class="small">Last updated November 2026.</p>
+</main>
+</body>
+</html>
